@@ -1,0 +1,1 @@
+# PHPStan webmozart/assert extension
