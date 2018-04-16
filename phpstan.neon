@@ -1,0 +1,9 @@
+includes:
+	- extension.neon
+	- vendor/phpstan/phpstan-phpunit/extension.neon
+	- vendor/phpstan/phpstan-phpunit/rules.neon
+	- vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+	excludes_analyse:
+		- */tests/*/data/*

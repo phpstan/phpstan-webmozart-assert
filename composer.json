@@ -1,0 +1,35 @@
+{
+	"name": "phpstan/phpstan-webmozart-assert",
+	"description": "PHPStan webmozart/assert extension",
+	"license": ["MIT"],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"branch-alias": {
+			"dev-master": "0.10-dev"
+		}
+	},
+	"require": {
+		"php": "~7.1",
+		"phpstan/phpstan": "^0.10"
+	},
+	"require-dev": {
+		"consistence/coding-standard": "^3.0.1",
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+		"jakub-onderka/php-parallel-lint": "^1.0",
+		"phing/phing": "^2.16.0",
+		"phpstan/phpstan-strict-rules": "^0.10",
+		"phpstan/phpstan-phpunit": "^0.10",
+		"phpunit/phpunit": "^7.1.3",
+		"slevomat/coding-standard": "^4.5.2",
+		"webmozart/assert": "^1.3.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"PHPStan\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"classmap": ["tests/"]
+	}
+}
