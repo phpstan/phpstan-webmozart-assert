@@ -303,6 +303,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						$value2->value
 					);
 				},
+				'subclassOf' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\FuncCall(
+						new \PhpParser\Node\Name('is_subclass_of'),
+						[
+							new Arg($expr->value),
+							$class,
+						]
+					);
+				},
 			];
 		}
 

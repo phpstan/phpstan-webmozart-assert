@@ -23,6 +23,7 @@ This extension specifies types of values passed to:
 * `Assert::isCountable`
 * `Assert::isInstanceOf`
 * `Assert::notInstanceOf`
+* `Assert::subclassOf`
 * `Assert::true`
 * `Assert::false`
 * `Assert::null`

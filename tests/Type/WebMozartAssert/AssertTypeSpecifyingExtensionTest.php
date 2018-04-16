@@ -137,6 +137,14 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				'Variable $z is: array<0|1|2, 1>',
 				107,
 			],
+			[
+				'Variable $aa is: PHPStan\Type\WebMozartAssert\Foo',
+				110,
+			],
+			[
+				'Variable $ab is: array<PHPStan\Type\WebMozartAssert\Foo>',
+				113,
+			],
 		]);
 	}
 

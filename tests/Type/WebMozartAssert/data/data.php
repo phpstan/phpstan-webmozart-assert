@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab)
 	{
 		$a;
 
@@ -105,6 +105,12 @@ class Foo
 		}
 		Assert::allNotSame($z, -1);
 		$z;
+
+		Assert::subclassOf($aa, self::class);
+		$aa;
+
+		Assert::allSubclassOf($ab, self::class);
+		$ab;
 	}
 
 }
