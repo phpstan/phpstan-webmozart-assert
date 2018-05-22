@@ -35,7 +35,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 	public function getClass(): string
 	{
-		return \Webmozart\Assert\Assert::class;
+		return 'Webmozart\Assert\Assert';
 	}
 
 	public function isStaticMethodSupported(
