@@ -134,7 +134,7 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				100,
 			],
 			[
-				'Variable $z is: array<0|1|2, 1>',
+				'Variable $z is: array(1, -2|2, -3|3)',
 				107,
 			],
 			[

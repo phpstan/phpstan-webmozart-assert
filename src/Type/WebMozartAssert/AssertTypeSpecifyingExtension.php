@@ -11,6 +11,8 @@ use PHPStan\Analyser\TypeSpecifierAwareExtension;
 use PHPStan\Analyser\TypeSpecifierContext;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\ArrayType;
+use PHPStan\Type\Constant\ConstantArrayType;
+use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
 use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\IterableType;
 use PHPStan\Type\MixedType;
@@ -18,6 +20,7 @@ use PHPStan\Type\ObjectType;
 use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
+use PHPStan\Type\TypeUtils;
 
 class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
@@ -109,7 +112,13 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				reset($sureTypes);
 				$exprString = key($sureTypes);
 				$sureType = $sureTypes[$exprString];
-				return $this->arrayOrIterable($scope, $sureType[0], $sureType[1]);
+				return $this->arrayOrIterable(
+					$scope,
+					$sureType[0],
+					function () use ($sureType): Type {
+						return $sureType[1];
+					}
+				);
 			}
 			if (count($specifiedTypes->getSureNotTypes()) > 0) {
 				throw new \PHPStan\ShouldNotHappenException();
@@ -325,12 +334,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	): SpecifiedTypes
 	{
 		if ($methodName === 'allNotNull') {
-			$expr = $node->args[0]->value;
-			$currentType = $scope->getType($expr);
 			return $this->arrayOrIterable(
 				$scope,
-				$expr,
-				TypeCombinator::removeNull($currentType->getIterableValueType())
+				$node->args[0]->value,
+				function (Type $type): Type {
+					return TypeCombinator::removeNull($type);
+				}
 			);
 		} elseif ($methodName === 'allNotInstanceOf') {
 			$classType = $scope->getType($node->args[1]->value);
@@ -338,26 +347,22 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				return new SpecifiedTypes([], []);
 			}
 
-			$expr = $node->args[0]->value;
-			$currentType = $scope->getType($expr);
+			$objectType = new ObjectType($classType->getValue());
 			return $this->arrayOrIterable(
 				$scope,
-				$expr,
-				TypeCombinator::remove(
-					$currentType->getIterableValueType(),
-					new ObjectType($classType->getValue())
-				)
+				$node->args[0]->value,
+				function (Type $type) use ($objectType): Type {
+					return TypeCombinator::remove($type, $objectType);
+				}
 			);
 		} elseif ($methodName === 'allNotSame') {
-			$expr = $node->args[0]->value;
-			$currentType = $scope->getType($expr);
+			$valueType = $scope->getType($node->args[1]->value);
 			return $this->arrayOrIterable(
 				$scope,
-				$expr,
-				TypeCombinator::remove(
-					$currentType->getIterableValueType(),
-					$scope->getType($node->args[1]->value)
-				)
+				$node->args[0]->value,
+				function (Type $type) use ($valueType): Type {
+					return TypeCombinator::remove($type, $valueType);
+				}
 			);
 		}
 
@@ -367,14 +372,29 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	private function arrayOrIterable(
 		Scope $scope,
 		\PhpParser\Node\Expr $expr,
-		Type $type
+		\Closure $typeCallback
 	): SpecifiedTypes
 	{
 		$currentType = $scope->getType($expr);
-		if ((new ArrayType(new MixedType(), new MixedType()))->isSuperTypeOf($currentType)->yes()) {
-			$specifiedType = new ArrayType($currentType->getIterableKeyType(), $type);
+		$arrayTypes = TypeUtils::getArrays($currentType);
+		if (count($arrayTypes) > 0) {
+			$newArrayTypes = [];
+			foreach ($arrayTypes as $arrayType) {
+				if ($arrayType instanceof ConstantArrayType) {
+					$builder = ConstantArrayTypeBuilder::createEmpty();
+					foreach ($arrayType->getKeyTypes() as $i => $keyType) {
+						$valueType = $arrayType->getValueTypes()[$i];
+						$builder->setOffsetValueType($keyType, $typeCallback($valueType));
+					}
+					$newArrayTypes[] = $builder->getArray();
+				} else {
+					$newArrayTypes[] = new ArrayType($arrayType->getKeyType(), $typeCallback($arrayType->getItemType()));
+				}
+			}
+
+			$specifiedType = TypeCombinator::union(...$newArrayTypes);
 		} elseif ((new IterableType(new MixedType(), new MixedType()))->isSuperTypeOf($currentType)->yes()) {
-			$specifiedType = new IterableType($currentType->getIterableKeyType(), $type);
+			$specifiedType = new IterableType($currentType->getIterableKeyType(), $typeCallback($currentType->getIterableValueType()));
 		} else {
 			return new SpecifiedTypes([], []);
 		}
