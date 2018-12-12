@@ -180,6 +180,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						[$value]
 					);
 				},
+				'stringNotEmpty' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\FuncCall(
+						new \PhpParser\Node\Name('is_string'),
+						[$value]
+					);
+				},
 				'float' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_float'),
