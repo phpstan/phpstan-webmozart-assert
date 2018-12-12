@@ -14,12 +14,15 @@ class VariableTypeReportingRule implements \PHPStan\Rules\Rule
 	}
 
 	/**
-	 * @param \PhpParser\Node\Expr\Variable $node
+	 * @param \PhpParser\Node $node
 	 * @param \PHPStan\Analyser\Scope $scope
 	 * @return string[] errors
 	 */
 	public function processNode(Node $node, Scope $scope): array
 	{
+		if (!$node instanceof \PhpParser\Node\Expr\Variable) {
+			return [];
+		}
 		if (!is_string($node->name)) {
 			return [];
 		}
