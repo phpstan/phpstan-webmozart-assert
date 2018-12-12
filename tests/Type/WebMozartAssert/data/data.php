@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac)
 	{
 		$a;
 
@@ -111,6 +111,9 @@ class Foo
 
 		Assert::allSubclassOf($ab, self::class);
 		$ab;
+
+		Assert::stringNotEmpty($ac);
+		$ac;
 	}
 
 }

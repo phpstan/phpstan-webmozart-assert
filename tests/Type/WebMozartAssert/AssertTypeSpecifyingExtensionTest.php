@@ -145,6 +145,10 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				'Variable $ab is: array<PHPStan\Type\WebMozartAssert\Foo>',
 				113,
 			],
+			[
+				'Variable $ac is: string',
+				116,
+			],
 		]);
 	}
 
