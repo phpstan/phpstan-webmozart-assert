@@ -149,6 +149,10 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				'Variable $ac is: string',
 				116,
 			],
+			[
+				'Variable $ad is: int|string',
+				119,
+			],
 		]);
 	}
 
