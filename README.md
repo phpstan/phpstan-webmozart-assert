@@ -14,6 +14,7 @@ This extension specifies types of values passed to:
 * `Assert::stringNotEmpty`
 * `Assert::float`
 * `Assert::numeric`
+* `Assert::integerish`
 * `Assert::boolean`
 * `Assert::scalar`
 * `Assert::object`
