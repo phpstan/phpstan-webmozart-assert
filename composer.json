@@ -15,7 +15,7 @@
 		"nikic/php-parser": "^4.0"
 	},
 	"require-dev": {
-		"consistence/coding-standard": "^3.0.1",
+		"consistence/coding-standard": "^3.7",
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
 		"jakub-onderka/php-parallel-lint": "^1.0",
 		"phing/phing": "^2.16.0",
