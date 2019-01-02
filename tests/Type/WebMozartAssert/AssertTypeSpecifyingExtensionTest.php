@@ -74,7 +74,7 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				45,
 			],
 			[
-				'Variable $l is: callable',
+				'Variable $l is: callable(): mixed',
 				48,
 			],
 			[
