@@ -27,6 +27,10 @@ class VariableTypeReportingRule implements \PHPStan\Rules\Rule
 			return [];
 		};
 
+		if ($scope->isInExpressionAssign($node)) {
+			return [];
+		}
+
 		return [
 			sprintf(
 				'Variable $%s is: %s',
