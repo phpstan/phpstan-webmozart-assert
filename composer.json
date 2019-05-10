@@ -1,12 +1,18 @@
 {
 	"name": "phpstan/phpstan-webmozart-assert",
 	"description": "PHPStan webmozart/assert extension",
+	"type": "phpstan-extension",
 	"license": ["MIT"],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
 			"dev-master": "0.11-dev"
+		},
+		"phpstan": {
+			"includes": [
+				"extension.neon"
+			]
 		}
 	},
 	"require": {
