@@ -138,7 +138,7 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				107,
 			],
 			[
-				'Variable $aa is: PHPStan\Type\WebMozartAssert\Foo',
+				'Variable $aa is: PHPStan\Type\WebMozartAssert\Foo|string',
 				110,
 			],
 			[
