@@ -7,6 +7,25 @@
 * [PHPStan](https://github.com/phpstan/phpstan)
 * [webmozart/assert](https://github.com/webmozart/assert)
 
+## Description
+
+The main scope of this extension is to help phpstan to detect the type of object after the `Webmozart\Assert` validation.
+
+```php
+<?php declare(strict_types = 1);
+
+use Webmozart\Assert;
+
+function demo(?int $a) {
+	// ...
+  
+	Assert::integer($a);
+	// phpstan is now aware that $a can no longer be `null` at this point
+  
+	return ($a === 10);
+}
+```
+
 This extension specifies types of values passed to:
 
 * `Assert::integer`
