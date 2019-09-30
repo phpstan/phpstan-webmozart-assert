@@ -117,11 +117,19 @@ class Foo
 
 		Assert::integerish($ad);
 		$ad;
-	}
+
+        Assert::implementsInterface($q, Baz::class);
+        $q;
+    }
 
 }
 
-class Bar
+class Bar implements Baz
+{
+
+}
+
+interface Baz
 {
 
 }
