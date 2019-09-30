@@ -168,31 +168,31 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	{
 		if (self::$resolvers === null) {
 			self::$resolvers = [
-				'integer' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'integer' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_int'),
 						[$value]
 					);
 				},
-				'string' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'string' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_string'),
 						[$value]
 					);
 				},
-				'stringNotEmpty' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'stringNotEmpty' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_string'),
 						[$value]
 					);
 				},
-				'float' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'float' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_float'),
 						[$value]
 					);
 				},
-				'integerish' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'integerish' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
 						new \PhpParser\Node\Expr\BinaryOp\BooleanAnd(
 							new \PhpParser\Node\Expr\FuncCall(
@@ -210,49 +210,49 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
-				'numeric' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'numeric' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_numeric'),
 						[$value]
 					);
 				},
-				'boolean' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'boolean' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_bool'),
 						[$value]
 					);
 				},
-				'scalar' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'scalar' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_scalar'),
 						[$value]
 					);
 				},
-				'object' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'object' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_object'),
 						[$value]
 					);
 				},
-				'resource' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'resource' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_resource'),
 						[$value]
 					);
 				},
-				'isCallable' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'isCallable' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_callable'),
 						[$value]
 					);
 				},
-				'isArray' => function (Scope $scope, Arg $value): ?\PhpParser\Node\Expr {
+				'isArray' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_array'),
 						[$value]
 					);
 				},
-				'isIterable' => function (Scope $scope, Arg $expr): ?\PhpParser\Node\Expr {
+				'isIterable' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
 						new \PhpParser\Node\Expr\FuncCall(
 							new \PhpParser\Node\Name('is_array'),
@@ -264,7 +264,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
-				'isCountable' => function (Scope $scope, Arg $expr): ?\PhpParser\Node\Expr {
+				'isCountable' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
 						new \PhpParser\Node\Expr\FuncCall(
 							new \PhpParser\Node\Name('is_array'),
@@ -300,43 +300,43 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
-				'true' => function (Scope $scope, Arg $expr): ?\PhpParser\Node\Expr {
+				'true' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\Identical(
 						$expr->value,
 						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('true'))
 					);
 				},
-				'false' => function (Scope $scope, Arg $expr): ?\PhpParser\Node\Expr {
+				'false' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\Identical(
 						$expr->value,
 						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('false'))
 					);
 				},
-				'null' => function (Scope $scope, Arg $expr): ?\PhpParser\Node\Expr {
+				'null' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\Identical(
 						$expr->value,
 						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null'))
 					);
 				},
-				'notNull' => function (Scope $scope, Arg $expr): ?\PhpParser\Node\Expr {
+				'notNull' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\NotIdentical(
 						$expr->value,
 						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null'))
 					);
 				},
-				'same' => function (Scope $scope, Arg $value1, Arg $value2): ?\PhpParser\Node\Expr {
+				'same' => function (Scope $scope, Arg $value1, Arg $value2): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\Identical(
 						$value1->value,
 						$value2->value
 					);
 				},
-				'notSame' => function (Scope $scope, Arg $value1, Arg $value2): ?\PhpParser\Node\Expr {
+				'notSame' => function (Scope $scope, Arg $value1, Arg $value2): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\NotIdentical(
 						$value1->value,
 						$value2->value
 					);
 				},
-				'subclassOf' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
+				'subclassOf' => function (Scope $scope, Arg $expr, Arg $class): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_subclass_of'),
 						[
