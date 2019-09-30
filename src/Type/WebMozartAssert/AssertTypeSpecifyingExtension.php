@@ -300,6 +300,17 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
+				'implementsInterface' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
+					$classType = $scope->getType($class->value);
+					if (!$classType instanceof ConstantStringType) {
+						return null;
+					}
+
+					return new \PhpParser\Node\Expr\Instanceof_(
+						$expr->value,
+						new \PhpParser\Node\Name($classType->getValue())
+					);
+				},
 				'true' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\Identical(
 						$expr->value,
