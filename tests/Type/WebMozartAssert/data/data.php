@@ -120,6 +120,8 @@ class Foo
 
         Assert::implementsInterface($ae, Baz::class);
         $ae;
+
+        Assert::implementsInterface(Bar::class, Foo::class);
     }
 
 }

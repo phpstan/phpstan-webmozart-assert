@@ -18,6 +18,7 @@ use PHPStan\Type\IterableType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
+use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use PHPStan\Type\TypeUtils;
@@ -302,8 +303,19 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				},
 				'implementsInterface' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
 					$classType = $scope->getType($class->value);
+					$exprType = $scope->getType($expr->value);
 					if (!$classType instanceof ConstantStringType) {
 						return null;
+					}
+
+					if ($exprType instanceof StringType) {
+						return new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('in_array'),
+							[
+								$class,
+								new \PhpParser\Node\Expr\FuncCall(new \PhpParser\Node\Name('class_implements'), [$expr]),
+							]
+						);
 					}
 
 					return new \PhpParser\Node\Expr\Instanceof_(
