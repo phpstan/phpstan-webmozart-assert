@@ -313,7 +313,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 							new \PhpParser\Node\Name('in_array'),
 							[
 								$class,
-								new \PhpParser\Node\Expr\FuncCall(new \PhpParser\Node\Name('class_implements'), [$expr]),
+								new \PhpParser\Node\Arg(
+									new \PhpParser\Node\Expr\FuncCall(
+										new \PhpParser\Node\Name('class_implements'),
+										[$expr]
+									)
+								),
 							]
 						);
 					}
