@@ -5,6 +5,9 @@ namespace PHPStan\Type\WebMozartAssert;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 
+/**
+ * @implements \PHPStan\Rules\Rule<Node\Expr\Variable>
+ */
 class VariableTypeReportingRule implements \PHPStan\Rules\Rule
 {
 
@@ -13,11 +16,6 @@ class VariableTypeReportingRule implements \PHPStan\Rules\Rule
 		return Node\Expr\Variable::class;
 	}
 
-	/**
-	 * @param \PhpParser\Node\Expr\Variable $node
-	 * @param \PHPStan\Analyser\Scope $scope
-	 * @return string[] errors
-	 */
 	public function processNode(Node $node, Scope $scope): array
 	{
 		if (!is_string($node->name)) {

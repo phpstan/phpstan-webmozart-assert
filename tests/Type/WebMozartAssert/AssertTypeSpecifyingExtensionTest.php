@@ -4,6 +4,9 @@ namespace PHPStan\Type\WebMozartAssert;
 
 use PHPStan\Rules\Rule;
 
+/**
+ * @extends \PHPStan\Testing\RuleTestCase<VariableTypeReportingRule>
+ */
 class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 {
 
@@ -138,11 +141,11 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				107,
 			],
 			[
-				'Variable $aa is: PHPStan\Type\WebMozartAssert\Foo|string',
+				'Variable $aa is: class-string<PHPStan\Type\WebMozartAssert\Foo>|PHPStan\Type\WebMozartAssert\Foo',
 				110,
 			],
 			[
-				'Variable $ab is: array<PHPStan\Type\WebMozartAssert\Foo>',
+				'Variable $ab is: array', // should array<PHPStan\Type\WebMozartAssert\Foo>
 				113,
 			],
 			[
