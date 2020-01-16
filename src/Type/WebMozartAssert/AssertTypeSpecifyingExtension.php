@@ -3,7 +3,10 @@
 namespace PHPStan\Type\WebMozartAssert;
 
 use PhpParser\Node\Arg;
+use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
+use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\SpecifiedTypes;
 use PHPStan\Analyser\TypeSpecifier;
@@ -181,9 +184,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					);
 				},
 				'stringNotEmpty' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_string'),
-						[$value]
+					return new BooleanAnd(
+						new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('is_string'),
+							[$value]
+						),
+						new NotIdentical(
+							$value->value,
+							new String_('')
+						)
 					);
 				},
 				'float' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
