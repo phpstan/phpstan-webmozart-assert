@@ -309,6 +309,55 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
+				'isInstanceOfAny' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
+					$classType = $scope->getType($class->value);
+					if (!$classType instanceof ConstantArrayType) {
+						return null;
+					}
+
+					$constantStringTypes = $classType->getValueTypes();
+
+					// If array is empty, it's no assert at all
+					if (count($constantStringTypes) === 0) {
+						return null;
+					}
+
+					// If array has only one entry, it's the same as 'isInstanceOf'
+					if (count($constantStringTypes) === 1) {
+						return new \PhpParser\Node\Expr\Instanceof_(
+							$expr->value,
+							new \PhpParser\Node\Name($constantStringTypes[0]->getValue())
+						);
+					}
+
+					$orRight = array_pop($constantStringTypes);
+					$orLeft = array_pop($constantStringTypes);
+
+					$or = new BooleanOr(
+						new \PhpParser\Node\Expr\Instanceof_(
+							$expr->value,
+							new \PhpParser\Node\Name($orLeft->getValue())
+						),
+						new \PhpParser\Node\Expr\Instanceof_(
+							$expr->value,
+							new \PhpParser\Node\Name($orRight->getValue())
+						)
+					);
+
+					while (count($constantStringTypes) > 0) {
+						$orLeft = array_pop($constantStringTypes);
+
+						$or = new BooleanOr(
+							new \PhpParser\Node\Expr\Instanceof_(
+								$expr->value,
+								new \PhpParser\Node\Name($orLeft->getValue())
+							),
+							$or
+						);
+					}
+
+					return $or;
+				},
 				'implementsInterface' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
 					$classType = $scope->getType($class->value);
 					if (!$classType instanceof ConstantStringType) {
