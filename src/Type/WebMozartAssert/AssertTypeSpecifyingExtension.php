@@ -333,7 +333,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					$orRight = array_pop($constantStringTypes);
 					$orLeft = array_pop($constantStringTypes);
 
-					$or = new BooleanOr(
+					$or = new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
 						new \PhpParser\Node\Expr\Instanceof_(
 							$expr->value,
 							new \PhpParser\Node\Name($orLeft->getValue())
@@ -347,7 +347,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					while (count($constantStringTypes) > 0) {
 						$orLeft = array_pop($constantStringTypes);
 
-						$or = new BooleanOr(
+						$or = new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
 							new \PhpParser\Node\Expr\Instanceof_(
 								$expr->value,
 								new \PhpParser\Node\Name($orLeft->getValue())
