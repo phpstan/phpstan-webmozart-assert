@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af)
 	{
 		$a;
 
@@ -120,6 +120,10 @@ class Foo
 
         Assert::implementsInterface($ae, Baz::class);
         $ae;
+
+        /** @var int|false $af */
+        Assert::notFalse($af);
+        $af;
     }
 
 }

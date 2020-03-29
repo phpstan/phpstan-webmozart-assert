@@ -18,10 +18,10 @@ use Webmozart\Assert;
 
 function demo(?int $a) {
 	// ...
-  
+
 	Assert::integer($a);
 	// phpstan is now aware that $a can no longer be `null` at this point
-  
+
 	return ($a === 10);
 }
 ```
@@ -47,6 +47,7 @@ This extension specifies types of values passed to:
 * `Assert::subclassOf`
 * `Assert::true`
 * `Assert::false`
+* `Assert::notFalse`
 * `Assert::null`
 * `Assert::notNull`
 * `Assert::same`
