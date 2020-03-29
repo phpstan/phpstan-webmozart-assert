@@ -338,6 +338,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null'))
 					);
 				},
+				'notFalse' => static function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\BinaryOp\NotIdentical(
+						$expr->value,
+						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('false'))
+					);
+				},
 				'notNull' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\NotIdentical(
 						$expr->value,
