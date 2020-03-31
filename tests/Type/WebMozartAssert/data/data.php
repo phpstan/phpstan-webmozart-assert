@@ -118,15 +118,15 @@ class Foo
 		Assert::integerish($ad);
 		$ad;
 
-        Assert::implementsInterface($ae, Baz::class);
-        $ae;
+		Assert::implementsInterface($ae, Baz::class);
+		$ae;
 
         /** @var int|false $af */
         Assert::notFalse($af);
         $af;
 
-        Assert::isInstanceOfAny($ag, [Bar::class, Baz::class]);
-        $ag;
+		Assert::isInstanceOfAny($ag, [Bar::class, Baz::class]);
+		$ag;
 
 		Assert::isInstanceOfAny($ah, [Baz::class]);
 		$ah;
