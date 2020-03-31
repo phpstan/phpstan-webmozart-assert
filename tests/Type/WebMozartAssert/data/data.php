@@ -121,9 +121,9 @@ class Foo
 		Assert::implementsInterface($ae, Baz::class);
 		$ae;
 
-        /** @var int|false $af */
-        Assert::notFalse($af);
-        $af;
+		/** @var int|false $af */
+		Assert::notFalse($af);
+		$af;
 
 		Assert::isInstanceOfAny($ag, [Bar::class, Baz::class]);
 		$ag;
