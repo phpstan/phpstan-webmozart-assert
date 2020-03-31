@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, $ah, $ai)
 	{
 		$a;
 
@@ -124,6 +124,15 @@ class Foo
         /** @var int|false $af */
         Assert::notFalse($af);
         $af;
+
+        Assert::isInstanceOfAny($ag, [Bar::class, Baz::class]);
+        $ag;
+
+		Assert::isInstanceOfAny($ah, [Baz::class]);
+		$ah;
+
+		Assert::isInstanceOfAny($ai, []);
+		$ai;
     }
 
 }
