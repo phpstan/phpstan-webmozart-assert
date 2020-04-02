@@ -1,6 +1,6 @@
 # PHPStan webmozart/assert extension
 
-[![Build Status](https://travis-ci.org/phpstan/phpstan-webmozart-assert.svg)](https://travis-ci.org/phpstan/phpstan-webmozart-assert)
+[![Build Status](https://travis-ci.com/phpstan/phpstan-src.svg?branch=master)](https://travis-ci.com/phpstan/phpstan-src)
 [![Latest Stable Version](https://poser.pugx.org/phpstan/phpstan-webmozart-assert/v/stable)](https://packagist.org/packages/phpstan/phpstan-webmozart-assert)
 [![License](https://poser.pugx.org/phpstan/phpstan-webmozart-assert/license)](https://packagist.org/packages/phpstan/phpstan-webmozart-assert)
 
