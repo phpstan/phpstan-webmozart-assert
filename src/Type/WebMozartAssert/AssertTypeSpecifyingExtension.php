@@ -322,16 +322,25 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						return null;
 					}
 
+					$orRight = array_pop($constantStringTypes);
+
+					if (!$orRight instanceof ConstantStringType ) {
+						throw new \PHPStan\ShouldNotHappenException();
+					}
+
 					// If array has only one entry, it's the same as 'isInstanceOf'
 					if (count($constantStringTypes) === 1) {
 						return new \PhpParser\Node\Expr\Instanceof_(
 							$expr->value,
-							new \PhpParser\Node\Name($constantStringTypes[0]->getValue())
+							new \PhpParser\Node\Name($orRight->getValue())
 						);
 					}
 
-					$orRight = array_pop($constantStringTypes);
 					$orLeft = array_pop($constantStringTypes);
+
+					if (!$orLeft instanceof ConstantStringType) {
+						throw new \PHPStan\ShouldNotHappenException();
+					}
 
 					$or = new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
 						new \PhpParser\Node\Expr\Instanceof_(
@@ -346,6 +355,10 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 					while (count($constantStringTypes) > 0) {
 						$orLeft = array_pop($constantStringTypes);
+
+						if (!$orLeft instanceof ConstantStringType) {
+							throw new \PHPStan\ShouldNotHappenException();
+						}
 
 						$or = new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
 							new \PhpParser\Node\Expr\Instanceof_(
