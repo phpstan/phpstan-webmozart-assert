@@ -324,7 +324,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 					$orRight = array_pop($constantStringTypes);
 
-					if (!$orRight instanceof ConstantStringType ) {
+					if (!$orRight instanceof ConstantStringType) {
 						throw new \PHPStan\ShouldNotHappenException();
 					}
 
