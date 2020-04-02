@@ -329,7 +329,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					}
 
 					// If array has only one entry, it's the same as 'isInstanceOf'
-					if (count($constantStringTypes) === 1) {
+					if (count($constantStringTypes) === 0) {
 						return new \PhpParser\Node\Expr\Instanceof_(
 							$expr->value,
 							new \PhpParser\Node\Name($orRight->getValue())
