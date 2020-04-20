@@ -17,6 +17,7 @@ use PHPStan\Type\ArrayType;
 use PHPStan\Type\Constant\ConstantArrayType;
 use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
 use PHPStan\Type\Constant\ConstantStringType;
+use PHPStan\Type\Generic\GenericObjectType;
 use PHPStan\Type\IterableType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
@@ -462,6 +463,11 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			}
 
 			$specifiedType = TypeCombinator::union(...$newArrayTypes);
+		} elseif ($currentType instanceof GenericObjectType) {
+			$specifiedType = new GenericObjectType(
+				$currentType->getClassName(),
+				[$currentType->getIterableKeyType(), $typeCallback($currentType->getIterableValueType())]
+			);
 		} elseif ((new IterableType(new MixedType(), new MixedType()))->isSuperTypeOf($currentType)->yes()) {
 			$specifiedType = new IterableType($currentType->getIterableKeyType(), $typeCallback($currentType->getIterableValueType()));
 		} else {
