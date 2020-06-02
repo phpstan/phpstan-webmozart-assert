@@ -118,12 +118,12 @@ class Foo
 		Assert::integerish($ad);
 		$ad;
 
-        Assert::implementsInterface($ae, Baz::class);
-        $ae;
+		Assert::implementsInterface($ae, Baz::class);
+		$ae;
 
-        /** @var int|false $af */
-        Assert::notFalse($af);
-        $af;
+		/** @var int|false $af */
+		Assert::notFalse($af);
+		$af;
 
 		/** @var array{foo?: string, bar?: string} $things */
 		$things = doFoo();
