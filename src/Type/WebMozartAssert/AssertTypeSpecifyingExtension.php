@@ -320,6 +320,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						new \PhpParser\Node\Name($classType->getValue())
 					);
 				},
+				'keyExists' => function (Scope $scope, Arg $array, Arg $key): \PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\FuncCall(
+						new \PhpParser\Node\Name('array_key_exists'),
+						[$key, $array]
+					);
+				},
 				'true' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\Identical(
 						$expr->value,

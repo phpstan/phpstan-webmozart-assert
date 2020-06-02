@@ -124,6 +124,11 @@ class Foo
         /** @var int|false $af */
         Assert::notFalse($af);
         $af;
+
+		/** @var array{foo?: string, bar?: string} $things */
+		$things = doFoo();
+		Assert::keyExists($things, 'foo');
+		$things;
     }
 
 }
