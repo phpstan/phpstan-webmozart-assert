@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, array $things)
 	{
 		$a;
 
@@ -124,6 +124,11 @@ class Foo
         /** @var int|false $af */
         Assert::notFalse($af);
         $af;
+
+        /** @var array<baz: string> $things */
+	Assert::keyExists('foo');
+	Assert::keyExists('bar');
+	$things;
     }
 
 }
