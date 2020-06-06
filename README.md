@@ -53,6 +53,7 @@ This extension specifies types of values passed to:
 * `Assert::same`
 * `Assert::notSame`
 * `Assert::implementsInterface`
+* `Assert::classExists`
 * `nullOr*` and `all*` variants of the above methods
 
 
