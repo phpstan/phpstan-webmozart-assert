@@ -168,6 +168,10 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				'Variable $things is: array(\'foo\' => string, ?\'bar\' => string)',
 				131,
 			],
+			[
+				'Variable $ag is: class-string',
+				134,
+			],
 		]);
 	}
 
