@@ -10,7 +10,7 @@
 		"phpstan/phpstan": "^0.12.40"
 	},
 	"require-dev": {
-		"consistence/coding-standard": "^3.7",
+		"consistence/coding-standard": "^3.10",
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
 		"ergebnis/composer-normalize": "^2.0.2",
 		"phing/phing": "^2.16.0",
@@ -18,7 +18,7 @@
 		"phpstan/phpstan-phpunit": "^0.12.6",
 		"phpstan/phpstan-strict-rules": "^0.12.1",
 		"phpunit/phpunit": "^7.5.18",
-		"slevomat/coding-standard": "^4.5.2",
+		"slevomat/coding-standard": "^6.4",
 		"webmozart/assert": "^1.7.0"
 	},
 	"config": {

@@ -403,7 +403,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					return TypeCombinator::removeNull($type);
 				}
 			);
-		} elseif ($methodName === 'allNotInstanceOf') {
+		}
+
+		if ($methodName === 'allNotInstanceOf') {
 			$classType = $scope->getType($node->args[1]->value);
 			if (!$classType instanceof ConstantStringType) {
 				return new SpecifiedTypes([], []);
@@ -417,7 +419,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					return TypeCombinator::remove($type, $objectType);
 				}
 			);
-		} elseif ($methodName === 'allNotSame') {
+		}
+
+		if ($methodName === 'allNotSame') {
 			$valueType = $scope->getType($node->args[1]->value);
 			return $this->arrayOrIterable(
 				$scope,
