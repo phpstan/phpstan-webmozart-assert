@@ -132,13 +132,21 @@ class Foo
 
 		Assert::classExists($ag);
 		$ag;
+
+		/** @var object $bar */
+		$bar = new Bar();
+		Assert::methodExists($bar, 'foo');
+		$bar->foo();
     }
 
 }
 
 class Bar
 {
+	public function foo(): void
+	{
 
+	}
 }
 
 interface Baz

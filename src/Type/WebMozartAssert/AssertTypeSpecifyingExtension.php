@@ -383,6 +383,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						[$class]
 					);
 				},
+				'methodExists' => function (Scope $scope, Arg $value1, Arg $value2): \PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\FuncCall(
+						new \PhpParser\Node\Name('method_exists'),
+						[$value1, $value2]
+					);
+				},
 			];
 		}
 
