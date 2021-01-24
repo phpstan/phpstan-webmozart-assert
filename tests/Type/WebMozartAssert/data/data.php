@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah)
 	{
 		$a;
 
@@ -132,6 +132,13 @@ class Foo
 
 		Assert::classExists($ag);
 		$ag;
+
+		if (rand(0, 1)) {
+			$ah = false;
+		}
+
+		Assert::allIsInstanceOf($ah, \stdClass::class);
+		$ah;
     }
 
 }

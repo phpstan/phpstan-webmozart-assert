@@ -441,7 +441,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		\Closure $typeCallback
 	): SpecifiedTypes
 	{
-		$currentType = $scope->getType($expr);
+		$currentType = TypeCombinator::intersect($scope->getType($expr), new IterableType(new MixedType(), new MixedType()));
 		$arrayTypes = TypeUtils::getArrays($currentType);
 		if (count($arrayTypes) > 0) {
 			$newArrayTypes = [];
