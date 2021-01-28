@@ -176,6 +176,14 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				'Variable $ah is: array<stdClass>',
 				141,
 			],
+			[
+				'Variable $ai is: array',
+				144,
+			],
+			[
+				'Variable $ai is: array<string>',
+				146,
+			],
 		]);
 	}
 
