@@ -389,6 +389,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						[$class]
 					);
 				},
+				'minCount' => function (Scope $scope, Arg $array, Arg $number): \PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\BinaryOp\GreaterOrEqual(
+						new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('count'),
+							[$array]
+						),
+						$number->value
+					);
+				},
 			];
 		}
 

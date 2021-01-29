@@ -144,6 +144,12 @@ class Foo
 		$ai;
 		Assert::allString($ai);
 		$ai;
+
+		/** @var int[] $aj */
+		$aj = doFoo();
+		Assert::minCount($aj, 1);
+		$ak = array_pop($aj);
+		$ak;
     }
 
 }
