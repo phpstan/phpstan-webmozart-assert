@@ -153,7 +153,7 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				116,
 			],
 			[
-				'Variable $ad is: int|(string&numeric)',
+				'Variable $ad is: float|int|(string&numeric)',
 				119,
 			],
 			[
