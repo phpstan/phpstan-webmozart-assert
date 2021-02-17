@@ -151,7 +151,8 @@ class Foo
 		$ak = array_pop($aj);
 		$ak;
 
-		Assert::keyExists($al, 'key');
+		Assert::keyExists($al, 'foo');
+		Assert::keyExists($al, 'bar');
 		$al;
 
     }
