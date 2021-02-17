@@ -188,6 +188,10 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				'Variable $ak is: int',
 				152,
 			],
+			[
+				'Variable $al is: array{key: mixed}',
+				155,
+			],
 		]);
 	}
 
