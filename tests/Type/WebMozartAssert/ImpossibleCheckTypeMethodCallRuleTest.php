@@ -14,17 +14,7 @@ class ImpossibleCheckTypeMethodCallRuleTest extends \PHPStan\Testing\RuleTestCas
 
 	protected function getRule(): Rule
 	{
-		return new ImpossibleCheckTypeStaticMethodCallRule(new ImpossibleCheckTypeHelper($this->createBroker(), $this->getTypeSpecifier(), [], true), true, true);
-	}
-
-	/**
-	 * @return \PHPStan\Type\StaticMethodTypeSpecifyingExtension[]
-	 */
-	protected function getStaticMethodTypeSpecifyingExtensions(): array
-	{
-		return [
-			new AssertTypeSpecifyingExtension(),
-		];
+		return new ImpossibleCheckTypeStaticMethodCallRule(self::getContainer()->getByType(ImpossibleCheckTypeHelper::class), true, true);
 	}
 
 	public function testExtension(): void
@@ -35,6 +25,13 @@ class ImpossibleCheckTypeMethodCallRuleTest extends \PHPStan\Testing\RuleTestCas
 				13,
 			],
 		]);
+	}
+
+	public static function getAdditionalConfigFiles(): array
+	{
+		return [
+			__DIR__ . '/../../../extension.neon',
+		];
 	}
 
 }
