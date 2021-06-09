@@ -2,7 +2,6 @@
 
 namespace PHPStan\Type\WebMozartAssert;
 
-use PHPStan\Rules\Comparison\ImpossibleCheckTypeHelper;
 use PHPStan\Rules\Comparison\ImpossibleCheckTypeStaticMethodCallRule;
 use PHPStan\Rules\Rule;
 
@@ -14,7 +13,7 @@ class ImpossibleCheckTypeMethodCallRuleTest extends \PHPStan\Testing\RuleTestCas
 
 	protected function getRule(): Rule
 	{
-		return new ImpossibleCheckTypeStaticMethodCallRule(self::getContainer()->getByType(ImpossibleCheckTypeHelper::class), true, true);
+		return self::getContainer()->getByType(ImpossibleCheckTypeStaticMethodCallRule::class);
 	}
 
 	public function testExtension(): void
