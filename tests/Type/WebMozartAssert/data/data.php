@@ -9,85 +9,85 @@ class Foo
 
 	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an)
 	{
-		$a;
+		\PHPStan\Testing\assertType('mixed', $a);
 
 		Assert::integer($a);
-		$a;
+		\PHPStan\Testing\assertType('int', $a);
 
 		Assert::nullOrInteger($b);
-		$b;
+		\PHPStan\Testing\assertType('int|null', $b);
 
 		Assert::allInteger($c);
-		$c;
+		\PHPStan\Testing\assertType('array<int>', $c);
 
 		Assert::allInteger($d);
-		$d;
+		\PHPStan\Testing\assertType('iterable<int>', $d);
 
 		Assert::string($e);
-		$e;
+		\PHPStan\Testing\assertType('string', $e);
 
 		Assert::float($f);
-		$f;
+		\PHPStan\Testing\assertType('float', $f);
 
 		Assert::numeric($g);
-		$g;
+		\PHPStan\Testing\assertType('float|int|(string&numeric)', $g);
 
 		Assert::boolean($h);
-		$h;
+		\PHPStan\Testing\assertType('bool', $h);
 
 		Assert::scalar($i);
-		$i;
+		\PHPStan\Testing\assertType('bool|float|int|string', $i);
 
 		Assert::object($j);
-		$j;
+		\PHPStan\Testing\assertType('object', $j);
 
 		Assert::resource($k);
-		$k;
+		\PHPStan\Testing\assertType('resource', $k);
 
 		Assert::isCallable($l);
-		$l;
+		\PHPStan\Testing\assertType('callable(): mixed', $l);
 
 		Assert::isArray($m);
-		$m;
+		\PHPStan\Testing\assertType('array', $m);
 
 		Assert::isIterable($n);
-		$n;
+		\PHPStan\Testing\assertType('array|Traversable', $n);
 
 		Assert::isCountable($o);
-		$o;
+		\PHPStan\Testing\assertType('array|Countable', $o);
 
 		Assert::isInstanceOf($p, self::class);
-		$p;
+		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Foo', $p);
 
 		/** @var Foo|Bar $q */
 		$q = doFoo();
 		Assert::notInstanceOf($q, Bar::class);
-		$q;
+		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Foo', $q);
 
 		Assert::true($r);
-		$r;
+		\PHPStan\Testing\assertType('true', $r);
 
 		Assert::false($s);
-		$s;
+		\PHPStan\Testing\assertType('false', $s);
 
 		Assert::null($t);
-		$t;
+		\PHPStan\Testing\assertType('null', $t);
 
 		Assert::notNull($u);
-		$u;
+		\PHPStan\Testing\assertType('int', $u);
 
 		/** @var (Foo|Bar)[] $v */
 		$v = doFoo();
 		Assert::allNotInstanceOf($v, Bar::class);
-		$v;
+		\PHPStan\Testing\assertType('array<PHPStan\Type\WebMozartAssert\Foo>', $v);
 
 		/** @var (int|null)[] $w */
 		$w = doFoo();
 		Assert::allNotNull($w);
-		$w;
+		\PHPStan\Testing\assertType('array<int>', $w);
 
 		Assert::same($x, 1);
-		$x;
+		\PHPStan\Testing\assertType('1', $x);
 
 		if (doFoo()) {
 			$y = 1;
@@ -95,70 +95,71 @@ class Foo
 			$y = -1;
 		}
 
-		$y;
+		\PHPStan\Testing\assertType('-1|1', $y);
 		Assert::notSame($y, 1);
-		$y;
+		\PHPStan\Testing\assertType('-1', $y);
 
 		$z = [1, 2, 3];
 		if (doFoo()) {
 			$z = [-1, -2, -3];
 		}
 		Assert::allNotSame($z, -1);
-		$z;
+		\PHPStan\Testing\assertType('array(1, -2|2, -3|3)', $z);
 
 		Assert::subclassOf($aa, self::class);
-		$aa;
+		\PHPStan\Testing\assertType('class-string<PHPStan\Type\WebMozartAssert\Foo>|PHPStan\Type\WebMozartAssert\Foo', $aa);
 
 		Assert::allSubclassOf($ab, self::class);
-		$ab;
+		// should array<PHPStan\Type\WebMozartAssert\Foo>
+		\PHPStan\Testing\assertType('array<*NEVER*>', $ab);
 
 		Assert::stringNotEmpty($ac);
-		$ac;
+		\PHPStan\Testing\assertType('string', $ac);
 
 		Assert::integerish($ad);
-		$ad;
+		\PHPStan\Testing\assertType('float|int|(string&numeric)', $ad);
 
 		Assert::implementsInterface($ae, Baz::class);
-		$ae;
+		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Baz', $ae);
 
 		/** @var int|false $af */
 		Assert::notFalse($af);
-		$af;
+		\PHPStan\Testing\assertType('int', $af);
 
 		/** @var array{foo?: string, bar?: string} $things */
 		$things = doFoo();
 		Assert::keyExists($things, 'foo');
-		$things;
+		\PHPStan\Testing\assertType('array(\'foo\' => string, ?\'bar\' => string)', $things);
 
 		Assert::classExists($ag);
-		$ag;
+		\PHPStan\Testing\assertType('class-string', $ag);
 
 		if (rand(0, 1)) {
 			$ah = false;
 		}
 
 		Assert::allIsInstanceOf($ah, \stdClass::class);
-		$ah;
+		\PHPStan\Testing\assertType('array<stdClass>', $ah);
 
 		Assert::isList($ai);
-		$ai;
+		\PHPStan\Testing\assertType('array', $ai);
 		Assert::allString($ai);
-		$ai;
+		\PHPStan\Testing\assertType('array<string>', $ai);
 
 		/** @var int[] $aj */
 		$aj = doFoo();
 		Assert::minCount($aj, 1);
 		$ak = array_pop($aj);
-		$ak;
+		\PHPStan\Testing\assertType('int', $ak);
 
 		Assert::inArray($al, ['foo', 'bar']);
-		$al;
+		\PHPStan\Testing\assertType('\'bar\'|\'foo\'', $al);
 
 		Assert::nullOrInArray($am, ['foo', 'bar']);
-		$am;
+		\PHPStan\Testing\assertType('\'bar\'|\'foo\'|null', $am);
 
 		Assert::oneOf($an, [1, 2]);
-		$an;
+		\PHPStan\Testing\assertType('1|2', $an);
     }
 
 }
