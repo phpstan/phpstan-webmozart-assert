@@ -154,7 +154,7 @@ class Foo
 		Assert::inArray($al, ['foo', 'bar']);
 		$al;
 
-		Assert::nullOrInArray($al, ['foo', 'bar']);
+		Assert::nullOrInArray($am, ['foo', 'bar']);
 		$am;
 
 		Assert::oneOf($an, [1, 2]);
