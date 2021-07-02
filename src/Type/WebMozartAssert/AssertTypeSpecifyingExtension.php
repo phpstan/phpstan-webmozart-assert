@@ -386,6 +386,26 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						$number->value
 					);
 				},
+				'inArray' => function (Scope $scope, Arg $needle, Arg $array): \PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\FuncCall(
+						new \PhpParser\Node\Name('in_array'),
+						[
+							$needle,
+							$array,
+							new Arg(new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('true'))),
+						]
+					);
+				},
+				'oneOf' => function (Scope $scope, Arg $needle, Arg $array): \PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\FuncCall(
+						new \PhpParser\Node\Name('in_array'),
+						[
+							$needle,
+							$array,
+							new Arg(new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('true'))),
+						]
+					);
+				},
 			];
 		}
 

@@ -188,6 +188,18 @@ class AssertTypeSpecifyingExtensionTest extends \PHPStan\Testing\RuleTestCase
 				'Variable $ak is: int',
 				152,
 			],
+			[
+				'Variable $al is: \'bar\'|\'foo\'',
+				155,
+			],
+			[
+				'Variable $am is: \'bar\'|\'foo\'|null',
+				158,
+			],
+			[
+				'Variable $an is: 1|2',
+				161,
+			],
 		]);
 	}
 

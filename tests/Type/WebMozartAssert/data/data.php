@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an)
 	{
 		$a;
 
@@ -150,6 +150,15 @@ class Foo
 		Assert::minCount($aj, 1);
 		$ak = array_pop($aj);
 		$ak;
+
+		Assert::inArray($al, ['foo', 'bar']);
+		$al;
+
+		Assert::nullOrInArray($am, ['foo', 'bar']);
+		$am;
+
+		Assert::oneOf($an, [1, 2]);
+		$an;
     }
 
 }
