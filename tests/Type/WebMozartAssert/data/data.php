@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an, $ao, $ap)
 	{
 		\PHPStan\Testing\assertType('mixed', $a);
 
@@ -160,6 +160,14 @@ class Foo
 
 		Assert::oneOf($an, [1, 2]);
 		\PHPStan\Testing\assertType('1|2', $an);
+
+		/** @var object $ao */
+		Assert::methodExists($ao, 'foo');
+		\PHPStan\Testing\assertType('object&hasMethod(foo)', $ao);
+
+		/** @var object $ap */
+		Assert::propertyExists($ap, 'foo');
+		\PHPStan\Testing\assertType('object&hasProperty(foo)', $ap);
     }
 
 }
