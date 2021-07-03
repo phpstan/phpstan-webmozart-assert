@@ -57,6 +57,7 @@ This extension specifies types of values passed to:
 * `Assert::minCount`
 * `Assert::inArray`
 * `Assert::oneOf`
+* `Assert::isArrayAccessible`
 * `nullOr*` and `all*` variants of the above methods
 
 

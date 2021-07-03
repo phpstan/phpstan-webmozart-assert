@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an, $ao)
 	{
 		\PHPStan\Testing\assertType('mixed', $a);
 
@@ -160,6 +160,9 @@ class Foo
 
 		Assert::oneOf($an, [1, 2]);
 		\PHPStan\Testing\assertType('1|2', $an);
+
+		Assert::isArrayAccessible($ao);
+		\PHPStan\Testing\assertType('array|ArrayAccess', $ao);
     }
 
 }
