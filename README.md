@@ -59,6 +59,7 @@ This extension specifies types of values passed to:
 * `Assert::oneOf`
 * `Assert::methodExists`
 * `Assert::propertyExists`
+* `Assert::isArrayAccessible`
 * `nullOr*` and `all*` variants of the above methods
 
 
