@@ -114,7 +114,7 @@ class Foo
 		\PHPStan\Testing\assertType('array<*NEVER*>', $ab);
 
 		Assert::stringNotEmpty($ac);
-		\PHPStan\Testing\assertType('string', $ac);
+		\PHPStan\Testing\assertType('non-empty-string', $ac);
 
 		Assert::integerish($ad);
 		\PHPStan\Testing\assertType('float|int|(string&numeric)', $ad);
