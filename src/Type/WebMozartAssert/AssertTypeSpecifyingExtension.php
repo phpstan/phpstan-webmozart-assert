@@ -386,6 +386,21 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						$number->value
 					);
 				},
+				'minLength' => function (Scope $scope, Arg $value, Arg $length): \PhpParser\Node\Expr {
+					return new BooleanAnd(
+						new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('is_string'),
+							[$value]
+						),
+						new \PhpParser\Node\Expr\BinaryOp\GreaterOrEqual(
+							new \PhpParser\Node\Expr\FuncCall(
+								new \PhpParser\Node\Name('strlen'),
+								[$value]
+							),
+							$length->value
+						)
+					);
+				},
 				'inArray' => function (Scope $scope, Arg $needle, Arg $array): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('in_array'),

@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an, $ao, $ap, $aq)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an, $ao, $ap, $aq, $ar)
 	{
 		\PHPStan\Testing\assertType('mixed', $a);
 
@@ -171,6 +171,13 @@ class Foo
 
 		Assert::isArrayAccessible($aq);
 		\PHPStan\Testing\assertType('array|ArrayAccess', $aq);
+
+		Assert::minLength($ar, 0);
+		\PHPStan\Testing\assertType('string', $ar);
+
+		Assert::minLength($ar, 1);
+		\PHPStan\Testing\assertType('non-empty-string', $ar);
+
     }
 
 }
