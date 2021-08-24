@@ -7,7 +7,7 @@ use Webmozart\Assert\Assert;
 class Foo
 {
 
-	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an, $ao, $ap, $aq, $ar)
+	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an, $ao, $ap, $aq, $ar, $as)
 	{
 		\PHPStan\Testing\assertType('mixed', $a);
 
@@ -178,6 +178,8 @@ class Foo
 		Assert::minLength($ar, 1);
 		\PHPStan\Testing\assertType('non-empty-string', $ar);
 
+		Assert::interfaceExists($ag);
+		\PHPStan\Testing\assertType('class-string', $ag);
     }
 
 }
