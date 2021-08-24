@@ -377,6 +377,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						[$class]
 					);
 				},
+				'interfaceExists' => function (Scope $scope, Arg $class): \PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\FuncCall(
+						new \PhpParser\Node\Name('interface_exists'),
+						[$class]
+					);
+				},
 				'minCount' => function (Scope $scope, Arg $array, Arg $number): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\GreaterOrEqual(
 						new \PhpParser\Node\Expr\FuncCall(

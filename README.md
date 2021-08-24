@@ -54,6 +54,7 @@ This extension specifies types of values passed to:
 * `Assert::notSame`
 * `Assert::implementsInterface`
 * `Assert::classExists`
+* `Assert::interfaceExists`
 * `Assert::minCount`
 * `Assert::inArray`
 * `Assert::oneOf`
