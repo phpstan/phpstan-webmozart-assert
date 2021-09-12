@@ -7,12 +7,12 @@
 	],
 	"require": {
 		"php": "^7.1 || ^8.0",
-		"phpstan/phpstan": "^0.12.92"
+		"phpstan/phpstan": "^1.0"
 	},
 	"require-dev": {
 		"php-parallel-lint/php-parallel-lint": "^1.2",
-		"phpstan/phpstan-phpunit": "^0.12.6",
-		"phpstan/phpstan-strict-rules": "^0.12.1",
+		"phpstan/phpstan-phpunit": "^1.0",
+		"phpstan/phpstan-strict-rules": "^1.0",
 		"phpunit/phpunit": "^9.5",
 		"webmozart/assert": "^1.9.1"
 	},
@@ -24,7 +24,7 @@
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "0.12-dev"
+			"dev-master": "1.0-dev"
 		},
 		"phpstan": {
 			"includes": [
