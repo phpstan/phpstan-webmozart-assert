@@ -57,7 +57,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				'allNotSame' => 2,
 			];
 			return array_key_exists($staticMethodReflection->getName(), $methods)
-				&& count($node->args) >= $methods[$staticMethodReflection->getName()];
+				&& count($node->getArgs()) >= $methods[$staticMethodReflection->getName()];
 		}
 
 		$trimmedName = self::trimName($staticMethodReflection->getName());
@@ -70,7 +70,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		$resolver = $resolvers[$trimmedName];
 		$resolverReflection = new \ReflectionObject($resolver);
 
-		return count($node->args) >= (count($resolverReflection->getMethod('__invoke')->getParameters()) - 1);
+		return count($node->getArgs()) >= (count($resolverReflection->getMethod('__invoke')->getParameters()) - 1);
 	}
 
 	private static function trimName(string $name): string
@@ -99,7 +99,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				$scope
 			);
 		}
-		$expression = self::createExpression($scope, $staticMethodReflection->getName(), $node->args);
+		$expression = self::createExpression($scope, $staticMethodReflection->getName(), $node->getArgs());
 		if ($expression === null) {
 			return new SpecifiedTypes([], []);
 		}
@@ -466,7 +466,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		if ($methodName === 'allNotNull') {
 			return $this->arrayOrIterable(
 				$scope,
-				$node->args[0]->value,
+				$node->getArgs()[0]->value,
 				function (Type $type): Type {
 					return TypeCombinator::removeNull($type);
 				}
@@ -474,7 +474,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		}
 
 		if ($methodName === 'allNotInstanceOf') {
-			$classType = $scope->getType($node->args[1]->value);
+			$classType = $scope->getType($node->getArgs()[1]->value);
 			if (!$classType instanceof ConstantStringType) {
 				return new SpecifiedTypes([], []);
 			}
@@ -482,7 +482,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			$objectType = new ObjectType($classType->getValue());
 			return $this->arrayOrIterable(
 				$scope,
-				$node->args[0]->value,
+				$node->getArgs()[0]->value,
 				function (Type $type) use ($objectType): Type {
 					return TypeCombinator::remove($type, $objectType);
 				}
@@ -490,10 +490,10 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		}
 
 		if ($methodName === 'allNotSame') {
-			$valueType = $scope->getType($node->args[1]->value);
+			$valueType = $scope->getType($node->getArgs()[1]->value);
 			return $this->arrayOrIterable(
 				$scope,
-				$node->args[0]->value,
+				$node->getArgs()[0]->value,
 				function (Type $type) use ($valueType): Type {
 					return TypeCombinator::remove($type, $valueType);
 				}
