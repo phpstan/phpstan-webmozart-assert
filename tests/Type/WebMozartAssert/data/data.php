@@ -30,7 +30,7 @@ class Foo
 		\PHPStan\Testing\assertType('float', $f);
 
 		Assert::numeric($g);
-		\PHPStan\Testing\assertType('float|int|(string&numeric)', $g);
+		\PHPStan\Testing\assertType('float|int|numeric-string', $g);
 
 		Assert::boolean($h);
 		\PHPStan\Testing\assertType('bool', $h);
@@ -104,7 +104,7 @@ class Foo
 			$z = [-1, -2, -3];
 		}
 		Assert::allNotSame($z, -1);
-		\PHPStan\Testing\assertType('array(1, -2|2, -3|3)', $z);
+		\PHPStan\Testing\assertType('array{1, -2|2, -3|3}', $z);
 
 		Assert::subclassOf($aa, self::class);
 		\PHPStan\Testing\assertType('class-string<PHPStan\Type\WebMozartAssert\Foo>|PHPStan\Type\WebMozartAssert\Foo', $aa);
@@ -117,7 +117,7 @@ class Foo
 		\PHPStan\Testing\assertType('non-empty-string', $ac);
 
 		Assert::integerish($ad);
-		\PHPStan\Testing\assertType('float|int|(string&numeric)', $ad);
+		\PHPStan\Testing\assertType('float|int|numeric-string', $ad);
 
 		Assert::implementsInterface($ae, Baz::class);
 		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Baz', $ae);
@@ -129,7 +129,7 @@ class Foo
 		/** @var array{foo?: string, bar?: string} $things */
 		$things = doFoo();
 		Assert::keyExists($things, 'foo');
-		\PHPStan\Testing\assertType('array(\'foo\' => string, ?\'bar\' => string)', $things);
+		\PHPStan\Testing\assertType('array{foo: string, bar?: string}', $things);
 
 		Assert::classExists($ag);
 		\PHPStan\Testing\assertType('class-string', $ag);
