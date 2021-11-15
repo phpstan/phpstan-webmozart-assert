@@ -56,6 +56,7 @@ This extension specifies types of values passed to:
 * `Assert::classExists`
 * `Assert::interfaceExists`
 * `Assert::validArrayKey`
+* `Assert::count`
 * `Assert::minCount`
 * `Assert::inArray`
 * `Assert::oneOf`
