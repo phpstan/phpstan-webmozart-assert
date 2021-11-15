@@ -174,6 +174,14 @@ class Foo
 
 		Assert::interfaceExists($ag);
 		\PHPStan\Testing\assertType('class-string', $ag);
+
+		/** @var int[] $at */
+		$at = doFoo();
+		Assert::count($at, 1);
+		$au = array_pop($at);
+		$av = array_pop($at);
+		\PHPStan\Testing\assertType('int', $au);
+		\PHPStan\Testing\assertType('int|null', $av);
     }
 
 }
