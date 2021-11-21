@@ -404,7 +404,22 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						$number->value
 					);
 				},
-				'minLength' => function (Scope $scope, Arg $value, Arg $length): \PhpParser\Node\Expr {
+				'length' => function (Scope $scope, Arg $value, Arg $length): \PhpParser\Node\Expr {
+					return new BooleanAnd(
+						new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('is_string'),
+							[$value]
+						),
+						new \PhpParser\Node\Expr\BinaryOp\Identical(
+							new \PhpParser\Node\Expr\FuncCall(
+								new \PhpParser\Node\Name('strlen'),
+								[$value]
+							),
+							$length->value
+						)
+					);
+				},
+				'minLength' => function (Scope $scope, Arg $value, Arg $min): \PhpParser\Node\Expr {
 					return new BooleanAnd(
 						new \PhpParser\Node\Expr\FuncCall(
 							new \PhpParser\Node\Name('is_string'),
@@ -415,7 +430,46 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 								new \PhpParser\Node\Name('strlen'),
 								[$value]
 							),
-							$length->value
+							$min->value
+						)
+					);
+				},
+				'maxLength' => function (Scope $scope, Arg $value, Arg $max): \PhpParser\Node\Expr {
+					return new BooleanAnd(
+						new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('is_string'),
+							[$value]
+						),
+						new \PhpParser\Node\Expr\BinaryOp\SmallerOrEqual(
+							new \PhpParser\Node\Expr\FuncCall(
+								new \PhpParser\Node\Name('strlen'),
+								[$value]
+							),
+							$max->value
+						)
+					);
+				},
+				'lengthBetween' => function (Scope $scope, Arg $value, Arg $min, Arg $max): \PhpParser\Node\Expr {
+					return new BooleanAnd(
+						new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('is_string'),
+							[$value]
+						),
+						new BooleanAnd(
+							new \PhpParser\Node\Expr\BinaryOp\GreaterOrEqual(
+								new \PhpParser\Node\Expr\FuncCall(
+									new \PhpParser\Node\Name('strlen'),
+									[$value]
+								),
+								$min->value
+							),
+							new \PhpParser\Node\Expr\BinaryOp\SmallerOrEqual(
+								new \PhpParser\Node\Expr\FuncCall(
+									new \PhpParser\Node\Name('strlen'),
+									[$value]
+								),
+								$max->value
+							)
 						)
 					);
 				},

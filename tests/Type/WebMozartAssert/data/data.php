@@ -172,12 +172,6 @@ class Foo
 		Assert::isArrayAccessible($aq);
 		\PHPStan\Testing\assertType('array|ArrayAccess', $aq);
 
-		Assert::minLength($ar, 0);
-		\PHPStan\Testing\assertType('string', $ar);
-
-		Assert::minLength($ar, 1);
-		\PHPStan\Testing\assertType('non-empty-string', $ar);
-
 		Assert::interfaceExists($ag);
 		\PHPStan\Testing\assertType('class-string', $ag);
     }

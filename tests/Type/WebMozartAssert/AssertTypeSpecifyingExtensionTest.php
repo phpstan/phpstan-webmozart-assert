@@ -14,6 +14,7 @@ class AssertTypeSpecifyingExtensionTest extends TypeInferenceTestCase
 	{
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/array.php');
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/data.php');
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/string.php');
 	}
 
 	/**
