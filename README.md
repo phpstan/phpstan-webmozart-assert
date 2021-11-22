@@ -62,6 +62,10 @@ This extension specifies types of values passed to:
 * `Assert::methodExists`
 * `Assert::propertyExists`
 * `Assert::isArrayAccessible`
+* `Assert::length`
+* `Assert::minLength`
+* `Assert::maxLength`
+* `Assert::lengthBetween`
 * `nullOr*` and `all*` variants of the above methods
 
 
