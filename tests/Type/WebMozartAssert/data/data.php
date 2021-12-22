@@ -4,7 +4,7 @@ namespace PHPStan\Type\WebMozartAssert;
 
 use Webmozart\Assert\Assert;
 
-class Foo
+class TypeInferenceTest
 {
 
 	public function doFoo($a, $b, array $c, iterable $d, $e, $f, $g, $h, $i, $j, $k, $l, $m, $n, $o, $p, $r, $s, ?int $t, ?int $u, $x, $aa, array $ab, $ac, $ad, $ae, $af, $ag, array $ah, $ai, $al, $am, $an, $ao, $ap, $aq, $ar, $as)
@@ -57,7 +57,7 @@ class Foo
 		\PHPStan\Testing\assertType('array|Countable', $o);
 
 		Assert::isInstanceOf($p, self::class);
-		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Foo', $p);
+		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\TypeInferenceTest', $p);
 
 		/** @var Foo|Bar $q */
 		$q = doFoo();
@@ -107,7 +107,7 @@ class Foo
 		\PHPStan\Testing\assertType('array{1, -2|2, -3|3}', $z);
 
 		Assert::subclassOf($aa, self::class);
-		\PHPStan\Testing\assertType('class-string<PHPStan\Type\WebMozartAssert\Foo>|PHPStan\Type\WebMozartAssert\Foo', $aa);
+		\PHPStan\Testing\assertType('class-string<PHPStan\Type\WebMozartAssert\TypeInferenceTest>|PHPStan\Type\WebMozartAssert\TypeInferenceTest', $aa);
 
 		Assert::allSubclassOf($ab, self::class);
 		// should array<PHPStan\Type\WebMozartAssert\Foo>

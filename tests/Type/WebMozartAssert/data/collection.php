@@ -4,7 +4,7 @@ namespace PHPStan\Type\WebMozartAssert;
 
 use Webmozart\Assert\Assert;
 
-class Foo
+class Collection
 {
 
 	/**

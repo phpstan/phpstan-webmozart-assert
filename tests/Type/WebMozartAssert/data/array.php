@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
+namespace PHPStan\Type\WebMozartAssert;
 
 use Webmozart\Assert\Assert;
 
-class Foo
+class ArrayTest
 {
 	/**
 	 * @param mixed $a

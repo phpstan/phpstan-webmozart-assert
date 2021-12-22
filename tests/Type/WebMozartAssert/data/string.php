@@ -4,7 +4,7 @@ namespace PHPStan\Type\WebMozartAssert;
 
 use Webmozart\Assert\Assert;
 
-class Foo
+class TestStrings
 {
 
 	public function length(string $a, string $b): void
