@@ -29,6 +29,7 @@ function demo(?int $a) {
 This extension specifies types of values passed to:
 
 * `Assert::integer`
+* `Assert::positiveInteger`
 * `Assert::string`
 * `Assert::stringNotEmpty`
 * `Assert::float`
