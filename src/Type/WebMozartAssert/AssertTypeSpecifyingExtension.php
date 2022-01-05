@@ -177,6 +177,18 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						[$value]
 					);
 				},
+				'positiveInteger' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\BinaryOp\BooleanAnd(
+						new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('is_int'),
+							[$value]
+						),
+						new \PhpParser\Node\Expr\BinaryOp\Greater(
+							$value->value,
+							new \PhpParser\Node\Scalar\LNumber(0)
+						)
+					);
+				},
 				'string' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_string'),
