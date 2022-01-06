@@ -20,18 +20,6 @@ class TypeInferenceTest
 		Assert::allInteger($d);
 		\PHPStan\Testing\assertType('iterable<int>', $d);
 
-		Assert::true($r);
-		\PHPStan\Testing\assertType('true', $r);
-
-		Assert::false($s);
-		\PHPStan\Testing\assertType('false', $s);
-
-		Assert::null($t);
-		\PHPStan\Testing\assertType('null', $t);
-
-		Assert::notNull($u);
-		\PHPStan\Testing\assertType('int', $u);
-
 		/** @var (Foo|Bar)[] $v */
 		$v = doFoo();
 		Assert::allNotInstanceOf($v, Bar::class);
@@ -41,19 +29,6 @@ class TypeInferenceTest
 		$w = doFoo();
 		Assert::allNotNull($w);
 		\PHPStan\Testing\assertType('array<int>', $w);
-
-		Assert::same($x, 1);
-		\PHPStan\Testing\assertType('1', $x);
-
-		if (doFoo()) {
-			$y = 1;
-		} else {
-			$y = -1;
-		}
-
-		\PHPStan\Testing\assertType('-1|1', $y);
-		Assert::notSame($y, 1);
-		\PHPStan\Testing\assertType('-1', $y);
 
 		$z = [1, 2, 3];
 		if (doFoo()) {
@@ -71,10 +46,6 @@ class TypeInferenceTest
 
 		Assert::implementsInterface($ae, Baz::class);
 		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Baz', $ae);
-
-		/** @var int|false $af */
-		Assert::notFalse($af);
-		\PHPStan\Testing\assertType('int', $af);
 
 		/** @var array{foo?: string, bar?: string} $things */
 		$things = doFoo();
@@ -102,14 +73,8 @@ class TypeInferenceTest
 		$ak = array_pop($aj);
 		\PHPStan\Testing\assertType('int', $ak);
 
-		Assert::inArray($al, ['foo', 'bar']);
-		\PHPStan\Testing\assertType('\'bar\'|\'foo\'', $al);
-
 		Assert::nullOrInArray($am, ['foo', 'bar']);
 		\PHPStan\Testing\assertType('\'bar\'|\'foo\'|null', $am);
-
-		Assert::oneOf($an, [1, 2]);
-		\PHPStan\Testing\assertType('1|2', $an);
 
 		/** @var object $ao */
 		Assert::methodExists($ao, 'foo');
