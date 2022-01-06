@@ -6,6 +6,16 @@ use Webmozart\Assert\Assert;
 
 class ArrayTest
 {
+
+	/**
+	 * @param array{foo?: string, bar?: string} $a
+	 */
+	public function keyNotExists(array $a): void
+	{
+		Assert::keyNotExists($a, 'bar');
+		\PHPStan\Testing\assertType('array{foo?: string}', $a);
+	}
+
 	/**
 	 * @param mixed $a
 	 */
@@ -17,4 +27,5 @@ class ArrayTest
 		Assert::validArrayKey($b);
 		\PHPStan\Testing\assertType('*NEVER*', $b);
 	}
+
 }
