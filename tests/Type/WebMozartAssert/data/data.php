@@ -11,9 +11,6 @@ class TypeInferenceTest
 	{
 		\PHPStan\Testing\assertType('mixed', $a);
 
-		Assert::integer($a);
-		\PHPStan\Testing\assertType('int', $a);
-
 		Assert::nullOrInteger($b);
 		\PHPStan\Testing\assertType('int|null', $b);
 
@@ -22,47 +19,6 @@ class TypeInferenceTest
 
 		Assert::allInteger($d);
 		\PHPStan\Testing\assertType('iterable<int>', $d);
-
-		Assert::string($e);
-		\PHPStan\Testing\assertType('string', $e);
-
-		Assert::float($f);
-		\PHPStan\Testing\assertType('float', $f);
-
-		Assert::numeric($g);
-		\PHPStan\Testing\assertType('float|int|numeric-string', $g);
-
-		Assert::boolean($h);
-		\PHPStan\Testing\assertType('bool', $h);
-
-		Assert::scalar($i);
-		\PHPStan\Testing\assertType('bool|float|int|string', $i);
-
-		Assert::object($j);
-		\PHPStan\Testing\assertType('object', $j);
-
-		Assert::resource($k);
-		\PHPStan\Testing\assertType('resource', $k);
-
-		Assert::isCallable($l);
-		\PHPStan\Testing\assertType('callable(): mixed', $l);
-
-		Assert::isArray($m);
-		\PHPStan\Testing\assertType('array', $m);
-
-		Assert::isIterable($n);
-		\PHPStan\Testing\assertType('array|Traversable', $n);
-
-		Assert::isCountable($o);
-		\PHPStan\Testing\assertType('array|Countable', $o);
-
-		Assert::isInstanceOf($p, self::class);
-		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\TypeInferenceTest', $p);
-
-		/** @var Foo|Bar $q */
-		$q = doFoo();
-		Assert::notInstanceOf($q, Bar::class);
-		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Foo', $q);
 
 		Assert::true($r);
 		\PHPStan\Testing\assertType('true', $r);
@@ -112,12 +68,6 @@ class TypeInferenceTest
 		Assert::allSubclassOf($ab, self::class);
 		// should array<PHPStan\Type\WebMozartAssert\Foo>
 		\PHPStan\Testing\assertType('array<*NEVER*>', $ab);
-
-		Assert::stringNotEmpty($ac);
-		\PHPStan\Testing\assertType('non-empty-string', $ac);
-
-		Assert::integerish($ad);
-		\PHPStan\Testing\assertType('float|int|numeric-string', $ad);
 
 		Assert::implementsInterface($ae, Baz::class);
 		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Baz', $ae);
