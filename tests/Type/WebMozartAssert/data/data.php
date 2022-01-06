@@ -47,11 +47,6 @@ class TypeInferenceTest
 		Assert::implementsInterface($ae, Baz::class);
 		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Baz', $ae);
 
-		/** @var array{foo?: string, bar?: string} $things */
-		$things = doFoo();
-		Assert::keyExists($things, 'foo');
-		\PHPStan\Testing\assertType('array{foo: string, bar?: string}', $things);
-
 		Assert::classExists($ag);
 		\PHPStan\Testing\assertType('class-string', $ag);
 
@@ -62,16 +57,9 @@ class TypeInferenceTest
 		Assert::allIsInstanceOf($ah, \stdClass::class);
 		\PHPStan\Testing\assertType('array<stdClass>', $ah);
 
-		Assert::isList($ai);
-		\PHPStan\Testing\assertType('array', $ai);
+		/** @var array $ai */
 		Assert::allString($ai);
 		\PHPStan\Testing\assertType('array<string>', $ai);
-
-		/** @var int[] $aj */
-		$aj = doFoo();
-		Assert::minCount($aj, 1);
-		$ak = array_pop($aj);
-		\PHPStan\Testing\assertType('int', $ak);
 
 		Assert::nullOrInArray($am, ['foo', 'bar']);
 		\PHPStan\Testing\assertType('\'bar\'|\'foo\'|null', $am);
@@ -89,14 +77,6 @@ class TypeInferenceTest
 
 		Assert::interfaceExists($ag);
 		\PHPStan\Testing\assertType('class-string', $ag);
-
-		/** @var int[] $at */
-		$at = doFoo();
-		Assert::count($at, 1);
-		$au = array_pop($at);
-		$av = array_pop($at);
-		\PHPStan\Testing\assertType('int', $au);
-		\PHPStan\Testing\assertType('int|null', $av);
     }
 
 }
