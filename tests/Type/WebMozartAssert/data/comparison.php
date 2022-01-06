@@ -52,10 +52,13 @@ class ComparisonTest
 		\PHPStan\Testing\assertType('-1', $a);
 	}
 
-	public function inArray($a): void
+	public function inArray($a, $b): void
 	{
 		Assert::inArray($a, ['foo', 'bar']);
 		\PHPStan\Testing\assertType('\'bar\'|\'foo\'', $a);
+
+		Assert::nullOrInArray($b, ['foo', 'bar']);
+		\PHPStan\Testing\assertType('\'bar\'|\'foo\'|null', $b);
 	}
 
 	public function oneOf($a): void

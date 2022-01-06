@@ -18,10 +18,13 @@ class TypeTest
 		\PHPStan\Testing\assertType('non-empty-string', $a);
 	}
 
-	public function integer($a): void
+	public function integer($a, $b): void
 	{
 		Assert::integer($a);
 		\PHPStan\Testing\assertType('int', $a);
+
+		Assert::nullOrInteger($b);
+		\PHPStan\Testing\assertType('int|null', $b);
 	}
 
 	public function integerish($a): void
@@ -123,5 +126,11 @@ class TypeTest
 	{
 		Assert::notInstanceOf($a, Bar::class);
 		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Foo', $a);
+	}
+
+	public function isArrayAccessible($a): void
+	{
+		Assert::isArrayAccessible($a);
+		\PHPStan\Testing\assertType('array|ArrayAccess', $a);
 	}
 }
