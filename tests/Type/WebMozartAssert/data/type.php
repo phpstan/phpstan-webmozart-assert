@@ -18,4 +18,14 @@ class TypeTest
 		Assert::positiveInteger($b);
 		\PHPStan\Testing\assertType('*NEVER*', $b);
 	}
+
+	public function natural($a): void
+	{
+		Assert::natural($a);
+		\PHPStan\Testing\assertType('int<0, max>', $a);
+
+		$b = -1;
+		Assert::natural($b);
+		\PHPStan\Testing\assertType('*NEVER*', $b);
+	}
 }
