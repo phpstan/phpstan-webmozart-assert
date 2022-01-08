@@ -36,24 +36,62 @@ class ArrayTest
 
 	/**
 	 * @param int[] $a
+	 * @param int[] $b
 	 */
-	public function count(array $a): void
+	public function count(array $a, array $b): void
 	{
 		Assert::count($a, 1);
-		$a1 = array_pop($a);
-		$a2 = array_pop($a);
-		\PHPStan\Testing\assertType('int', $a1);
-		\PHPStan\Testing\assertType('int|null', $a2);
+		\PHPStan\Testing\assertType('non-empty-array<int>', $a);
+
+		Assert::count($b, 0);
+		\PHPStan\Testing\assertType('array{}', $b);
 	}
 
 	/**
 	 * @param int[] $a
+	 * @param int[] $b
 	 */
-	public function minCount(array $a): void
+	public function minCount(array $a, array $b): void
 	{
 		Assert::minCount($a, 1);
-		$a1 = array_pop($a);
-		\PHPStan\Testing\assertType('int', $a1);
+		\PHPStan\Testing\assertType('non-empty-array<int>', $a);
+
+		Assert::minCount($b, 0);
+		\PHPStan\Testing\assertType('array<int>', $b);
+	}
+
+	/**
+	 * @param int[] $a
+	 * @param int[] $b
+	 */
+	public function maxCount(array $a, array $b): void
+	{
+		Assert::maxCount($a, 1);
+		\PHPStan\Testing\assertType('array<int>', $a);
+
+		Assert::maxCount($b, 0);
+		\PHPStan\Testing\assertType('array{}', $b);
+	}
+
+	/**
+	 * @param int[] $a
+	 * @param int[] $b
+	 * @param int[] $c
+	 * @param int[] $d
+	 */
+	public function countBetween(array $a, array $b, array $c, array $d): void
+	{
+		Assert::countBetween($a, 1, 2);
+		\PHPStan\Testing\assertType('non-empty-array<int>', $a);
+
+		Assert::countBetween($b, 0, 2);
+		\PHPStan\Testing\assertType('array<int>', $b);
+
+		Assert::countBetween($c, 0, 0);
+		\PHPStan\Testing\assertType('array{}', $c);
+
+		Assert::countBetween($d, 2, 0);
+		\PHPStan\Testing\assertType('*NEVER*', $d);
 	}
 
 	public function isList($a): void

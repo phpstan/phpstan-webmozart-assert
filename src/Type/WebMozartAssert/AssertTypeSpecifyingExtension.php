@@ -436,13 +436,40 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						$number->value
 					);
 				},
-				'minCount' => function (Scope $scope, Arg $array, Arg $number): \PhpParser\Node\Expr {
+				'minCount' => function (Scope $scope, Arg $array, Arg $min): \PhpParser\Node\Expr {
 					return new \PhpParser\Node\Expr\BinaryOp\GreaterOrEqual(
 						new \PhpParser\Node\Expr\FuncCall(
 							new \PhpParser\Node\Name('count'),
 							[$array]
 						),
-						$number->value
+						$min->value
+					);
+				},
+				'maxCount' => function (Scope $scope, Arg $array, Arg $max): \PhpParser\Node\Expr {
+					return new \PhpParser\Node\Expr\BinaryOp\SmallerOrEqual(
+						new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('count'),
+							[$array]
+						),
+						$max->value
+					);
+				},
+				'countBetween' => function (Scope $scope, Arg $array, Arg $min, Arg $max): \PhpParser\Node\Expr {
+					return new BooleanAnd(
+						new \PhpParser\Node\Expr\BinaryOp\GreaterOrEqual(
+							new \PhpParser\Node\Expr\FuncCall(
+								new \PhpParser\Node\Name('count'),
+								[$array]
+							),
+							$min->value
+						),
+						new \PhpParser\Node\Expr\BinaryOp\SmallerOrEqual(
+							new \PhpParser\Node\Expr\FuncCall(
+								new \PhpParser\Node\Name('count'),
+								[$array]
+							),
+							$max->value
+						)
 					);
 				},
 				'length' => function (Scope $scope, Arg $value, Arg $length): \PhpParser\Node\Expr {

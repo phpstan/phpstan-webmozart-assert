@@ -62,6 +62,8 @@ This extension specifies types of values passed to:
 * `Assert::validArrayKey`
 * `Assert::count`
 * `Assert::minCount`
+* `Assert::maxCount`
+* `Assert::countBetween`
 * `Assert::inArray`
 * `Assert::oneOf`
 * `Assert::methodExists`
