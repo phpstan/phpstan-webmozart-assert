@@ -6,19 +6,25 @@ use Webmozart\Assert\Assert;
 
 class ComparisonTest
 {
-	public function true($a): void
+	public function true($a, $b): void
 	{
 		Assert::true($a);
 		\PHPStan\Testing\assertType('true', $a);
+
+		Assert::nullOrTrue($b);
+		\PHPStan\Testing\assertType('true|null', $b);
 	}
 
-	public function false($a): void
+	public function false($a, $b): void
 	{
 		Assert::false($a);
 		\PHPStan\Testing\assertType('false', $a);
+
+		Assert::nullOrFalse($b);
+		\PHPStan\Testing\assertType('false|null', $b);
 	}
 
-	public function notFalse(int $a): void
+	public function notFalse($a, $b): void
 	{
 		/** @var int|false $a */
 		Assert::notFalse($a);
@@ -37,10 +43,13 @@ class ComparisonTest
 		\PHPStan\Testing\assertType('int', $a);
 	}
 
-	public function same($a): void
+	public function same($a, $b): void
 	{
 		Assert::same($a, 1);
 		\PHPStan\Testing\assertType('1', $a);
+
+		Assert::nullOrSame($b, 1);
+		\PHPStan\Testing\assertType('1|null', $b);
 	}
 
 	/**
@@ -61,9 +70,12 @@ class ComparisonTest
 		\PHPStan\Testing\assertType('\'bar\'|\'foo\'|null', $b);
 	}
 
-	public function oneOf($a): void
+	public function oneOf($a, $b): void
 	{
 		Assert::oneOf($a, [1, 2]);
 		\PHPStan\Testing\assertType('1|2', $a);
+
+		Assert::nullOrOneOf($b, [1, 2]);
+		\PHPStan\Testing\assertType('1|2|null', $b);
 	}
 }

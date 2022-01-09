@@ -67,10 +67,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		TypeSpecifierContext $context
 	): bool
 	{
-		if (in_array($staticMethodReflection->getName(), self::ASSERTIONS_RESULTING_IN_NON_EMPTY_STRING, true)) {
-			return true;
-		}
-
 		if (substr($staticMethodReflection->getName(), 0, 6) === 'allNot') {
 			$methods = [
 				'allNotInstanceOf' => 2,
@@ -83,6 +79,10 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 		$trimmedName = self::trimName($staticMethodReflection->getName());
 		$resolvers = self::getExpressionResolvers();
+
+		if (in_array($trimmedName, self::ASSERTIONS_RESULTING_IN_NON_EMPTY_STRING, true)) {
+			return true;
+		}
 
 		if (!array_key_exists($trimmedName, $resolvers)) {
 			return false;
@@ -130,6 +130,14 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			TypeSpecifierContext::createTruthy()
 		);
 
+		if (substr($staticMethodReflection->getName(), 0, 6) === 'nullOr') {
+			return $this->typeSpecifier->create(
+				$node->getArgs()[0]->value,
+				TypeCombinator::addNull($this->getResultingTypeFromSpecifiedTypes($specifiedTypes)),
+				TypeSpecifierContext::createTruthy()
+			);
+		}
+
 		if (substr($staticMethodReflection->getName(), 0, 3) === 'all') {
 			if (count($specifiedTypes->getSureTypes()) > 0) {
 				$sureTypes = $specifiedTypes->getSureTypes();
@@ -152,6 +160,22 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		return $specifiedTypes;
 	}
 
+	private function getResultingTypeFromSpecifiedTypes(SpecifiedTypes $specifiedTypes): Type
+	{
+		if (count($specifiedTypes->getSureTypes()) > 0) {
+			$sureTypes = $specifiedTypes->getSureTypes();
+			reset($sureTypes);
+			$exprString = key($sureTypes);
+			$sureType = $sureTypes[$exprString];
+
+			$sureNotType = $specifiedTypes->getSureNotTypes()[$exprString] ?? null;
+
+			return $sureNotType !== null ? TypeCombinator::remove($sureType[1], $sureNotType[1]) : $sureType[1];
+		}
+
+		throw new \PHPStan\ShouldNotHappenException();
+	}
+
 	/**
 	 * @param Scope $scope
 	 * @param string $name
@@ -172,22 +196,8 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 		$resolvers = self::getExpressionResolvers();
 		$resolver = $resolvers[$trimmedName];
-		$expression = $resolver($scope, ...$args);
-		if ($expression === null) {
-			return null;
-		}
 
-		if (substr($name, 0, 6) === 'nullOr') {
-			$expression = new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
-				$expression,
-				new \PhpParser\Node\Expr\BinaryOp\Identical(
-					$args[0]->value,
-					new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null'))
-				)
-			);
-		}
-
-		return $expression;
+		return $resolver($scope, ...$args);
 	}
 
 	/**

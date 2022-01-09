@@ -25,13 +25,16 @@ class ArrayTest
 		\PHPStan\Testing\assertType('array{foo: string, bar?: string}', $a);
 	}
 
-	public function validArrayKey($a, bool $b): void
+	public function validArrayKey($a, bool $b, $c): void
 	{
 		Assert::validArrayKey($a);
 		\PHPStan\Testing\assertType('int|string', $a);
 
 		Assert::validArrayKey($b);
 		\PHPStan\Testing\assertType('*NEVER*', $b);
+
+		Assert::nullOrValidArrayKey($c);
+		\PHPStan\Testing\assertType('int|string|null', $c);
 	}
 
 	/**
@@ -94,10 +97,13 @@ class ArrayTest
 		\PHPStan\Testing\assertType('*NEVER*', $d);
 	}
 
-	public function isList($a): void
+	public function isList($a, $b): void
 	{
 		Assert::isList($a);
 		\PHPStan\Testing\assertType('array', $a);
+
+		Assert::nullOrIsList($b);
+		\PHPStan\Testing\assertType('array|null', $b);
 	}
 
 }

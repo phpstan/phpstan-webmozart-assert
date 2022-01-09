@@ -91,16 +91,22 @@ class TestStrings
 		\PHPStan\Testing\assertType('non-empty-string', $d);
 	}
 
-	public function unicodeLetters($a): void
+	public function unicodeLetters($a, $b): void
 	{
 		Assert::unicodeLetters($a);
 		\PHPStan\Testing\assertType('non-empty-string', $a);
+
+		Assert::nullOrUnicodeLetters($b);
+		\PHPStan\Testing\assertType('non-empty-string|null', $b);
 	}
 
-	public function alpha($a): void
+	public function alpha($a, $b): void
 	{
 		Assert::alpha($a);
 		\PHPStan\Testing\assertType('non-empty-string', $a);
+
+		Assert::nullOrAlpha($b);
+		\PHPStan\Testing\assertType('non-empty-string|null', $b);
 	}
 
 	public function digits(string $a): void
@@ -133,28 +139,40 @@ class TestStrings
 		\PHPStan\Testing\assertType('non-empty-string', $a);
 	}
 
-	public function ip($a): void
+	public function ip($a, $b): void
 	{
 		Assert::ip($a);
 		\PHPStan\Testing\assertType('non-empty-string', $a);
+
+		Assert::nullOrIp($b);
+		\PHPStan\Testing\assertType('non-empty-string|null', $b);
 	}
 
-	public function ipv4($a): void
+	public function ipv4($a, $b): void
 	{
 		Assert::ipv4($a);
 		\PHPStan\Testing\assertType('non-empty-string', $a);
+
+		Assert::nullOrIpv4($b);
+		\PHPStan\Testing\assertType('non-empty-string|null', $b);
 	}
 
-	public function ipv6($a): void
+	public function ipv6($a, $b): void
 	{
 		Assert::ipv6($a);
 		\PHPStan\Testing\assertType('non-empty-string', $a);
+
+		Assert::nullOrIpv6($b);
+		\PHPStan\Testing\assertType('non-empty-string|null', $b);
 	}
 
-	public function email($a): void
+	public function email($a, $b): void
 	{
 		Assert::email($a);
 		\PHPStan\Testing\assertType('non-empty-string', $a);
+
+		Assert::nullOrEmail($b);
+		\PHPStan\Testing\assertType('non-empty-string|null', $b);
 	}
 
 	public function notWhitespaceOnly(string $a): void
