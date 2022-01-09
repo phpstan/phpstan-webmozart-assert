@@ -30,6 +30,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 	private const ASSERTIONS_RESULTING_IN_NON_EMPTY_STRING = [
 		'stringNotEmpty',
+		'startsWithLetter',
 		'unicodeLetters',
 		'alpha',
 		'digits',
@@ -485,6 +486,27 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
+				'contains' => function (Scope $scope, Arg $value, Arg $subString): \PhpParser\Node\Expr {
+					if ($scope->getType($subString->value)->isNonEmptyString()->yes()) {
+						return self::createIsNonEmptyStringExpression([$value]);
+					}
+
+					return self::createIsStringExpression([$value]);
+				},
+				'startsWith' => function (Scope $scope, Arg $value, Arg $prefix): \PhpParser\Node\Expr {
+					if ($scope->getType($prefix->value)->isNonEmptyString()->yes()) {
+						return self::createIsNonEmptyStringExpression([$value]);
+					}
+
+					return self::createIsStringExpression([$value]);
+				},
+				'endsWith' => function (Scope $scope, Arg $value, Arg $suffix): \PhpParser\Node\Expr {
+					if ($scope->getType($suffix->value)->isNonEmptyString()->yes()) {
+						return self::createIsNonEmptyStringExpression([$value]);
+					}
+
+					return self::createIsStringExpression([$value]);
+				},
 				'length' => function (Scope $scope, Arg $value, Arg $length): \PhpParser\Node\Expr {
 					return new BooleanAnd(
 						new \PhpParser\Node\Expr\FuncCall(
@@ -684,6 +706,17 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			$expr,
 			$specifiedType,
 			TypeSpecifierContext::createTruthy()
+		);
+	}
+
+	/**
+	 * @param \PhpParser\Node\Arg[] $args
+	 */
+	private static function createIsStringExpression(array $args): \PhpParser\Node\Expr
+	{
+		return new \PhpParser\Node\Expr\FuncCall(
+			new \PhpParser\Node\Name('is_string'),
+			[$args[0]]
 		);
 	}
 
