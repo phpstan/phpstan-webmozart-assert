@@ -4,23 +4,24 @@ namespace PHPStan\Type\WebMozartAssert;
 
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
-use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\SpecifiedTypes;
 use PHPStan\Analyser\TypeSpecifier;
 use PHPStan\Analyser\TypeSpecifierAwareExtension;
 use PHPStan\Analyser\TypeSpecifierContext;
 use PHPStan\Reflection\MethodReflection;
+use PHPStan\Type\Accessory\AccessoryNonEmptyStringType;
 use PHPStan\Type\ArrayType;
 use PHPStan\Type\Constant\ConstantArrayType;
 use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
 use PHPStan\Type\Constant\ConstantStringType;
+use PHPStan\Type\IntersectionType;
 use PHPStan\Type\IterableType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
+use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use PHPStan\Type\TypeUtils;
@@ -28,21 +29,24 @@ use PHPStan\Type\TypeUtils;
 class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
 
-	private const ASSERTIONS_RESULTING_IN_NON_EMPTY_STRING = [
-		'stringNotEmpty',
-		'startsWithLetter',
-		'unicodeLetters',
-		'alpha',
-		'digits',
-		'alnum',
-		'lower',
-		'upper',
-		'uuid',
-		'ip',
-		'ipv4',
-		'ipv6',
-		'email',
-		'notWhitespaceOnly',
+	private const ASSERTIONS_SUPPORTED_VIA_CUSTOM_TYPE_SPECIFIER = [
+		'stringNotEmpty' => 1,
+		'contains' => 2,
+		'startsWith' => 2,
+		'startsWithLetter' => 1,
+		'endsWith' => 2,
+		'unicodeLetters' => 1,
+		'alpha' => 1,
+		'digits' => 1,
+		'alnum' => 1,
+		'lower' => 1,
+		'upper' => 1,
+		'uuid' => 1,
+		'ip' => 1,
+		'ipv4' => 1,
+		'ipv6' => 1,
+		'email' => 1,
+		'notWhitespaceOnly' => 1,
 	];
 
 	/** @var \Closure[] */
@@ -67,10 +71,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		TypeSpecifierContext $context
 	): bool
 	{
-		if (in_array($staticMethodReflection->getName(), self::ASSERTIONS_RESULTING_IN_NON_EMPTY_STRING, true)) {
-			return true;
-		}
-
 		if (substr($staticMethodReflection->getName(), 0, 6) === 'allNot') {
 			$methods = [
 				'allNotInstanceOf' => 2,
@@ -83,6 +83,13 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 		$trimmedName = self::trimName($staticMethodReflection->getName());
 		$resolvers = self::getExpressionResolvers();
+
+		if (
+			array_key_exists($trimmedName, self::ASSERTIONS_SUPPORTED_VIA_CUSTOM_TYPE_SPECIFIER)
+			&& count($node->getArgs()) >= self::ASSERTIONS_SUPPORTED_VIA_CUSTOM_TYPE_SPECIFIER[$trimmedName]
+		) {
+			return true;
+		}
 
 		if (!array_key_exists($trimmedName, $resolvers)) {
 			return false;
@@ -113,6 +120,8 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		TypeSpecifierContext $context
 	): SpecifiedTypes
 	{
+		$trimmedName = self::trimName($staticMethodReflection->getName());
+
 		if (substr($staticMethodReflection->getName(), 0, 6) === 'allNot') {
 			return $this->handleAllNot(
 				$staticMethodReflection->getName(),
@@ -120,36 +129,127 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				$scope
 			);
 		}
-		$expression = self::createExpression($scope, $staticMethodReflection->getName(), $node->getArgs());
-		if ($expression === null) {
-			return new SpecifiedTypes([], []);
+
+		if (array_key_exists($trimmedName, self::ASSERTIONS_SUPPORTED_VIA_CUSTOM_TYPE_SPECIFIER)) {
+			$specifiedTypes = $this->specifyTypesViaCustomTypeSpecifier(
+				$staticMethodReflection,
+				$node,
+				$scope
+			);
+		} else {
+			$expression = self::createExpression($scope, $staticMethodReflection->getName(), $node->getArgs());
+			if ($expression === null) {
+				return new SpecifiedTypes([], []);
+			}
+
+			$specifiedTypes = $this->typeSpecifier->specifyTypesInCondition(
+				$scope,
+				$expression,
+				TypeSpecifierContext::createTruthy()
+			);
 		}
-		$specifiedTypes = $this->typeSpecifier->specifyTypesInCondition(
-			$scope,
-			$expression,
-			TypeSpecifierContext::createTruthy()
-		);
 
 		if (substr($staticMethodReflection->getName(), 0, 3) === 'all') {
-			if (count($specifiedTypes->getSureTypes()) > 0) {
-				$sureTypes = $specifiedTypes->getSureTypes();
-				reset($sureTypes);
-				$exprString = key($sureTypes);
-				$sureType = $sureTypes[$exprString];
-				return $this->arrayOrIterable(
-					$scope,
-					$sureType[0],
-					function () use ($sureType): Type {
-						return $sureType[1];
-					}
-				);
-			}
-			if (count($specifiedTypes->getSureNotTypes()) > 0) {
-				throw new \PHPStan\ShouldNotHappenException();
-			}
+			return $this->arrayOrIterable(
+				$scope,
+				$node->getArgs()[0]->value,
+				function () use ($specifiedTypes): Type {
+					return $this->getResultingTypeFromSpecifiedTypes($specifiedTypes);
+				}
+			);
+		}
+
+		if (substr($staticMethodReflection->getName(), 0, 6) === 'nullOr') {
+			return $this->typeSpecifier->create(
+				$node->getArgs()[0]->value,
+				TypeCombinator::addNull($this->getResultingTypeFromSpecifiedTypes($specifiedTypes)),
+				TypeSpecifierContext::createTruthy(),
+				true
+			);
 		}
 
 		return $specifiedTypes;
+	}
+
+	private function getResultingTypeFromSpecifiedTypes(SpecifiedTypes $specifiedTypes): Type
+	{
+		if (count($specifiedTypes->getSureTypes()) > 0) {
+			$sureTypes = $specifiedTypes->getSureTypes();
+			reset($sureTypes);
+			$exprString = key($sureTypes);
+			$sureType = $sureTypes[$exprString];
+
+			$sureNotTypes = $specifiedTypes->getSureNotTypes();
+
+			return array_key_exists($exprString, $sureNotTypes)
+				? TypeCombinator::remove($sureType[1], $sureNotTypes[$exprString][1])
+				: $sureType[1];
+		}
+
+		throw new \PHPStan\ShouldNotHappenException();
+	}
+
+	private function specifyTypesViaCustomTypeSpecifier(
+		MethodReflection $staticMethodReflection,
+		StaticCall $node,
+		Scope $scope
+	): SpecifiedTypes
+	{
+		$trimmedName = self::trimName($staticMethodReflection->getName());
+
+		$expression = $node->getArgs()[0]->value;
+		$typeBefore = $scope->getType($expression);
+
+		// Adds support for calling via all*
+		$typeBefore = $typeBefore->isIterable()->yes() ? $typeBefore->getIterableValueType() : $typeBefore;
+
+		switch ($trimmedName) {
+			case 'startsWithLetter':
+			case 'digits':
+			case 'alnum':
+			case 'lower':
+			case 'upper':
+			case 'uuid':
+			case 'notWhitespaceOnly':
+				// Assertions narrowing down to non-empty-string if the input is a string
+				$type = (new StringType())->isSuperTypeOf($typeBefore)->yes()
+					? TypeCombinator::intersect($typeBefore, new AccessoryNonEmptyStringType())
+					: $typeBefore;
+
+				return $this->typeSpecifier->create(
+					$expression,
+					$type,
+					TypeSpecifierContext::createTruthy()
+				);
+			case 'stringNotEmpty':
+			case 'unicodeLetters':
+			case 'alpha':
+			case 'ip':
+			case 'ipv4':
+			case 'ipv6':
+			case 'email':
+				// Assertions always narrowing down to non-empty-string
+				return $this->typeSpecifier->create(
+					$expression,
+					new IntersectionType([new StringType(), new AccessoryNonEmptyStringType()]),
+					TypeSpecifierContext::createTruthy()
+				);
+			case 'contains':
+			case 'startsWith':
+			case 'endsWith':
+				// Assertions narrowing down to non-empty-string if the input is a string and arg1 is a non-empty-string
+				$type = (new StringType())->isSuperTypeOf($typeBefore)->yes() && $scope->getType($node->getArgs()[1]->value)->isNonEmptyString()->yes()
+					? TypeCombinator::intersect($typeBefore, new AccessoryNonEmptyStringType())
+					: $typeBefore;
+
+				return $this->typeSpecifier->create(
+					$expression,
+					$type,
+					TypeSpecifierContext::createTruthy()
+				);
+		}
+
+		throw new \PHPStan\ShouldNotHappenException();
 	}
 
 	/**
@@ -165,29 +265,10 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	): ?\PhpParser\Node\Expr
 	{
 		$trimmedName = self::trimName($name);
-
-		if (in_array($trimmedName, self::ASSERTIONS_RESULTING_IN_NON_EMPTY_STRING, true)) {
-			return self::createIsNonEmptyStringExpression($args);
-		}
-
 		$resolvers = self::getExpressionResolvers();
 		$resolver = $resolvers[$trimmedName];
-		$expression = $resolver($scope, ...$args);
-		if ($expression === null) {
-			return null;
-		}
 
-		if (substr($name, 0, 6) === 'nullOr') {
-			$expression = new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
-				$expression,
-				new \PhpParser\Node\Expr\BinaryOp\Identical(
-					$args[0]->value,
-					new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null'))
-				)
-			);
-		}
-
-		return $expression;
+		return $resolver($scope, ...$args);
 	}
 
 	/**
@@ -486,27 +567,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
-				'contains' => function (Scope $scope, Arg $value, Arg $subString): \PhpParser\Node\Expr {
-					if ($scope->getType($subString->value)->isNonEmptyString()->yes()) {
-						return self::createIsNonEmptyStringExpression([$value]);
-					}
-
-					return self::createIsStringExpression([$value]);
-				},
-				'startsWith' => function (Scope $scope, Arg $value, Arg $prefix): \PhpParser\Node\Expr {
-					if ($scope->getType($prefix->value)->isNonEmptyString()->yes()) {
-						return self::createIsNonEmptyStringExpression([$value]);
-					}
-
-					return self::createIsStringExpression([$value]);
-				},
-				'endsWith' => function (Scope $scope, Arg $value, Arg $suffix): \PhpParser\Node\Expr {
-					if ($scope->getType($suffix->value)->isNonEmptyString()->yes()) {
-						return self::createIsNonEmptyStringExpression([$value]);
-					}
-
-					return self::createIsStringExpression([$value]);
-				},
 				'length' => function (Scope $scope, Arg $value, Arg $length): \PhpParser\Node\Expr {
 					return new BooleanAnd(
 						new \PhpParser\Node\Expr\FuncCall(
@@ -706,34 +766,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			$expr,
 			$specifiedType,
 			TypeSpecifierContext::createTruthy()
-		);
-	}
-
-	/**
-	 * @param \PhpParser\Node\Arg[] $args
-	 */
-	private static function createIsStringExpression(array $args): \PhpParser\Node\Expr
-	{
-		return new \PhpParser\Node\Expr\FuncCall(
-			new \PhpParser\Node\Name('is_string'),
-			[$args[0]]
-		);
-	}
-
-	/**
-	 * @param \PhpParser\Node\Arg[] $args
-	 */
-	private static function createIsNonEmptyStringExpression(array $args): \PhpParser\Node\Expr
-	{
-		return new BooleanAnd(
-			new \PhpParser\Node\Expr\FuncCall(
-				new \PhpParser\Node\Name('is_string'),
-				[$args[0]]
-			),
-			new NotIdentical(
-				$args[0]->value,
-				new String_('')
-			)
 		);
 	}
 

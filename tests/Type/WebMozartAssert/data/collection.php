@@ -13,6 +13,12 @@ class CollectionTest
 		\PHPStan\Testing\assertType('array<string>', $a);
 	}
 
+	public function allStringNotEmpty(array $a): void
+	{
+		Assert::allStringNotEmpty($a);
+		\PHPStan\Testing\assertType('array<non-empty-string>', $a);
+	}
+
 	public function allInteger(array $a, iterable $b, iterable $c): void
 	{
 		Assert::allInteger($a);
@@ -53,6 +59,12 @@ class CollectionTest
 	{
 		Assert::allNotSame($a, -1);
 		\PHPStan\Testing\assertType('array{1, -2|2, -3|3}', $a);
+	}
+
+	public function allEmail(array $a): void
+	{
+		Assert::allEmail($a);
+		\PHPStan\Testing\assertType('array<non-empty-string>', $a);
 	}
 
 	public function allSubclassOf(array $a, $b): void
