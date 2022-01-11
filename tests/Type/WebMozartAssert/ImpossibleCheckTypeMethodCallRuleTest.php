@@ -4,11 +4,12 @@ namespace PHPStan\Type\WebMozartAssert;
 
 use PHPStan\Rules\Comparison\ImpossibleCheckTypeStaticMethodCallRule;
 use PHPStan\Rules\Rule;
+use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends \PHPStan\Testing\RuleTestCase<ImpossibleCheckTypeStaticMethodCallRule>
+ * @extends RuleTestCase<ImpossibleCheckTypeStaticMethodCallRule>
  */
-class ImpossibleCheckTypeMethodCallRuleTest extends \PHPStan\Testing\RuleTestCase
+class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 {
 
 	protected function getRule(): Rule
