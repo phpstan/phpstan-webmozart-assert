@@ -22,8 +22,6 @@ class AssertTypeSpecifyingExtensionTest extends TypeInferenceTestCase
 
 	/**
 	 * @dataProvider dataFileAsserts
-	 * @param string $assertType
-	 * @param string $file
 	 * @param mixed ...$args
 	 */
 	public function testFileAsserts(
