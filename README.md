@@ -69,22 +69,10 @@ This extension specifies types of values passed to:
 * `Assert::methodExists`
 * `Assert::propertyExists`
 * `Assert::isArrayAccessible`
-* `Assert::unicodeLetters`
-* `Assert::alpha`
-* `Assert::digits`
-* `Assert::alnum`
-* `Assert::lower`
-* `Assert::upper`
 * `Assert::length`
 * `Assert::minLength`
 * `Assert::maxLength`
 * `Assert::lengthBetween`
-* `Assert::uuid`
-* `Assert::ip`
-* `Assert::ipv4`
-* `Assert::ipv6`
-* `Assert::email`
-* `Assert::notWhitespaceOnly`
 * `nullOr*` and `all*` variants of the above methods
 
 
