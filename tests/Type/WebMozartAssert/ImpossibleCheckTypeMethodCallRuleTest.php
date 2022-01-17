@@ -26,6 +26,16 @@ class ImpossibleCheckTypeMethodCallRuleTest extends \PHPStan\Testing\RuleTestCas
 		]);
 	}
 
+	public function testExtensionFalsePositive(): void
+	{
+		$this->analyse([__DIR__ . '/data/impossible-check_false-positive.php'], [
+			[
+				'Call to static method Webmozart\Assert\Assert::uuid() with \'\' will always evaluate to false.',
+				13,
+			],
+		]);
+	}
+
 	public static function getAdditionalConfigFiles(): array
 	{
 		return [
