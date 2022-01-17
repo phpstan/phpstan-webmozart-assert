@@ -69,10 +69,6 @@ This extension specifies types of values passed to:
 * `Assert::methodExists`
 * `Assert::propertyExists`
 * `Assert::isArrayAccessible`
-* `Assert::contains`
-* `Assert::startsWith`
-* `Assert::startsWithLetter`
-* `Assert::endsWith`
 * `Assert::unicodeLetters`
 * `Assert::alpha`
 * `Assert::digits`
