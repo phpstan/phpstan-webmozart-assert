@@ -28,22 +28,6 @@ use PHPStan\Type\TypeUtils;
 class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
 
-	private const ASSERTIONS_RESULTING_IN_NON_EMPTY_STRING = [
-		'stringNotEmpty',
-		'unicodeLetters',
-		'alpha',
-		'digits',
-		'alnum',
-		'lower',
-		'upper',
-		'uuid',
-		'ip',
-		'ipv4',
-		'ipv6',
-		'email',
-		'notWhitespaceOnly',
-	];
-
 	/** @var \Closure[] */
 	private static $resolvers;
 
@@ -66,10 +50,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		TypeSpecifierContext $context
 	): bool
 	{
-		if (in_array($staticMethodReflection->getName(), self::ASSERTIONS_RESULTING_IN_NON_EMPTY_STRING, true)) {
-			return true;
-		}
-
 		if (substr($staticMethodReflection->getName(), 0, 6) === 'allNot') {
 			$methods = [
 				'allNotInstanceOf' => 2,
@@ -164,11 +144,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	): ?\PhpParser\Node\Expr
 	{
 		$trimmedName = self::trimName($name);
-
-		if (in_array($trimmedName, self::ASSERTIONS_RESULTING_IN_NON_EMPTY_STRING, true)) {
-			return self::createIsNonEmptyStringExpression($args);
-		}
-
 		$resolvers = self::getExpressionResolvers();
 		$resolver = $resolvers[$trimmedName];
 		$expression = $resolver($scope, ...$args);
@@ -218,6 +193,18 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					return new \PhpParser\Node\Expr\FuncCall(
 						new \PhpParser\Node\Name('is_string'),
 						[$value]
+					);
+				},
+				'stringNotEmpty' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
+					return new BooleanAnd(
+						new \PhpParser\Node\Expr\FuncCall(
+							new \PhpParser\Node\Name('is_string'),
+							[$value]
+						),
+						new NotIdentical(
+							$value->value,
+							new String_('')
+						)
 					);
 				},
 				'float' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
@@ -684,23 +671,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			$expr,
 			$specifiedType,
 			TypeSpecifierContext::createTruthy()
-		);
-	}
-
-	/**
-	 * @param \PhpParser\Node\Arg[] $args
-	 */
-	private static function createIsNonEmptyStringExpression(array $args): \PhpParser\Node\Expr
-	{
-		return new BooleanAnd(
-			new \PhpParser\Node\Expr\FuncCall(
-				new \PhpParser\Node\Name('is_string'),
-				[$args[0]]
-			),
-			new NotIdentical(
-				$args[0]->value,
-				new String_('')
-			)
 		);
 	}
 
