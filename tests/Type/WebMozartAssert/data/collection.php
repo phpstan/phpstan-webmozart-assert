@@ -13,6 +13,12 @@ class CollectionTest
 		\PHPStan\Testing\assertType('array<string>', $a);
 	}
 
+	public function allStringNotEmpty(array $a): void
+	{
+		Assert::allStringNotEmpty($a);
+		\PHPStan\Testing\assertType('array<string>', $a); // should be array<non-empty-string>
+	}
+
 	public function allInteger(array $a, iterable $b, iterable $c): void
 	{
 		Assert::allInteger($a);
