@@ -26,9 +26,15 @@ class ImpossibleCheckTypeMethodCallRuleTest extends \PHPStan\Testing\RuleTestCas
 		]);
 	}
 
+	public function testBug85(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-85.php'], []);
+	}
+
 	public static function getAdditionalConfigFiles(): array
 	{
 		return [
+			__DIR__ . '/../../../vendor/phpstan/phpstan-strict-rules/rules.neon',
 			__DIR__ . '/../../../extension.neon',
 		];
 	}
