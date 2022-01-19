@@ -307,9 +307,18 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					);
 				},
 				'isList' => static function (Scope $scope, Arg $expr): Expr {
-					return new FuncCall(
-						new Name('is_array'),
-						[$expr]
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_array'),
+							[$expr]
+						),
+						new Identical(
+							$expr->value,
+							new FuncCall(
+								new Name('array_values'),
+								[$expr]
+							)
+						)
 					);
 				},
 				'isCountable' => static function (Scope $scope, Arg $expr): Expr {
