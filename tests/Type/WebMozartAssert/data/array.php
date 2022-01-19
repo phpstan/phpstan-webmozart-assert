@@ -100,10 +100,10 @@ class ArrayTest
 	public function isList($a, $b): void
 	{
 		Assert::isList($a);
-		\PHPStan\Testing\assertType('array', $a);
+		\PHPStan\Testing\assertType('array<int, mixed>', $a);
 
 		Assert::nullOrIsList($b);
-		\PHPStan\Testing\assertType('array|null', $b);
+		\PHPStan\Testing\assertType('array<int, mixed>|null', $b);
 	}
 
 }
