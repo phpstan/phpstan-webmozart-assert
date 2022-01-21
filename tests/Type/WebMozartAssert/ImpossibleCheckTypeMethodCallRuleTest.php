@@ -24,6 +24,26 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::stringNotEmpty() with \'\' will always evaluate to false.',
 				13,
 			],
+			[
+				'Call to static method Webmozart\Assert\Assert::isInstanceOf() with WebmozartAssertImpossibleCheck\Bar and \'WebmozartAssertImpossibleCheck\\\Bar\' will always evaluate to true.',
+				21,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::isInstanceOf() with WebmozartAssertImpossibleCheck\Bar and WebmozartAssertImpossibleCheck\Bar will always evaluate to true.',
+				22,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::nullOrIsInstanceOf() with WebmozartAssertImpossibleCheck\Bar and \'WebmozartAssertImpossibleCheck\\\Bar\' will always evaluate to true.',
+				23,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::allIsInstanceOf() with array<WebmozartAssertImpossibleCheck\Bar> and \'WebmozartAssertImpossibleCheck\\\Bar\' will always evaluate to true.',
+				26,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notInstanceOf() with WebmozartAssertImpossibleCheck\Bar and \'WebmozartAssertImpossibleCheck\\\Bar\' will always evaluate to false.',
+				32,
+			],
 		]);
 	}
 

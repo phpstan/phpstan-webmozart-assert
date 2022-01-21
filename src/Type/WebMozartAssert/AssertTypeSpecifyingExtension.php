@@ -40,6 +40,7 @@ use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use PHPStan\Type\TypeUtils;
+use PHPStan\Type\TypeWithClassName;
 use ReflectionObject;
 use Traversable;
 use function array_key_exists;
@@ -335,25 +336,33 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				},
 				'isInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
-					if (!$classType instanceof ConstantStringType) {
+					if ($classType instanceof ConstantStringType) {
+						$className = new Name($classType->getValue());
+					} elseif ($classType instanceof TypeWithClassName) {
+						$className = new Name($classType->getClassName());
+					} else {
 						return null;
 					}
 
 					return new Instanceof_(
 						$expr->value,
-						new Name($classType->getValue())
+						$className
 					);
 				},
 				'notInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
-					if (!$classType instanceof ConstantStringType) {
+					if ($classType instanceof ConstantStringType) {
+						$className = new Name($classType->getValue());
+					} elseif ($classType instanceof TypeWithClassName) {
+						$className = new Name($classType->getClassName());
+					} else {
 						return null;
 					}
 
 					return new BooleanNot(
 						new Instanceof_(
 							$expr->value,
-							new Name($classType->getValue())
+							$className
 						)
 					);
 				},
@@ -639,11 +648,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 		if ($methodName === 'allNotInstanceOf') {
 			$classType = $scope->getType($node->getArgs()[1]->value);
-			if (!$classType instanceof ConstantStringType) {
+
+			if ($classType instanceof ConstantStringType) {
+				$objectType = new ObjectType($classType->getValue());
+			} elseif ($classType instanceof TypeWithClassName) {
+				$objectType = new ObjectType($classType->getClassName());
+			} else {
 				return new SpecifiedTypes([], []);
 			}
 
-			$objectType = new ObjectType($classType->getValue());
 			return $this->arrayOrIterable(
 				$scope,
 				$node->getArgs()[0]->value,
