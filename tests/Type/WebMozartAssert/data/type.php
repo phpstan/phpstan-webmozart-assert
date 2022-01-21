@@ -2,6 +2,7 @@
 
 namespace PHPStan\Type\WebMozartAssert;
 
+use stdClass;
 use Webmozart\Assert\Assert;
 
 class TypeTest
@@ -158,22 +159,36 @@ class TypeTest
 		\PHPStan\Testing\assertType('array|Countable|null', $b);
 	}
 
-	public function isInstanceOf($a, $b): void
+	public function isInstanceOf($a, $b, $c, $d): void
 	{
 		Assert::isInstanceOf($a, self::class);
 		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\TypeTest', $a);
 
 		Assert::nullOrIsInstanceOf($b, self::class);
 		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\TypeTest|null', $b);
+
+		Assert::isInstanceOf($c, new stdClass());
+		\PHPStan\Testing\assertType('stdClass', $c);
+
+		Assert::isInstanceOf($d, 17);
+		\PHPStan\Testing\assertType('mixed', $d);
 	}
 
 	/**
 	 * @param Foo|Bar $a
+	 * @param Foo|stdClass $b
+	 * @param Foo|Bar $c
 	 */
-	public function notInstanceOf($a): void
+	public function notInstanceOf($a, $b, $c): void
 	{
 		Assert::notInstanceOf($a, Bar::class);
 		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Foo', $a);
+
+		Assert::notInstanceOf($b, new stdClass());
+		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Foo', $b);
+
+		Assert::notInstanceOf($c, 17);
+		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Bar|PHPStan\Type\WebMozartAssert\Foo', $c);
 	}
 
 	public function isArrayAccessible($a, $b): void

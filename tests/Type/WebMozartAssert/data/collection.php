@@ -2,6 +2,7 @@
 
 namespace PHPStan\Type\WebMozartAssert;
 
+use stdClass;
 use Webmozart\Assert\Assert;
 
 class CollectionTest
@@ -28,19 +29,33 @@ class CollectionTest
 		\PHPStan\Testing\assertType('iterable<int>', $b);
 	}
 
-	public function allInstanceOf(array $a): void
+	public function allInstanceOf(array $a, array $b, array $c): void
 	{
-		Assert::allIsInstanceOf($a, \stdClass::class);
+		Assert::allIsInstanceOf($a, stdClass::class);
 		\PHPStan\Testing\assertType('array<stdClass>', $a);
+
+		Assert::allIsInstanceOf($b, new stdClass());
+		\PHPStan\Testing\assertType('array<stdClass>', $b);
+
+		Assert::allIsInstanceOf($c, 17);
+		\PHPStan\Testing\assertType('array', $c);
 	}
 
 	/**
 	 * @param (CollectionFoo|CollectionBar)[] $a
+	 * @param (CollectionFoo|stdClass)[] $b
+	 * @param CollectionFoo[] $c
 	 */
-	public function allNotInstanceOf(array $a): void
+	public function allNotInstanceOf(array $a, array $b, array $c): void
 	{
 		Assert::allNotInstanceOf($a, CollectionBar::class);
 		\PHPStan\Testing\assertType('array<PHPStan\Type\WebMozartAssert\CollectionFoo>', $a);
+
+		Assert::allNotInstanceOf($b, new stdClass());
+		\PHPStan\Testing\assertType('array<PHPStan\Type\WebMozartAssert\CollectionFoo>', $b);
+
+		Assert::allNotInstanceOf($c, 17);
+		\PHPStan\Testing\assertType('array<PHPStan\Type\WebMozartAssert\CollectionFoo>', $c);
 	}
 
 	/**
