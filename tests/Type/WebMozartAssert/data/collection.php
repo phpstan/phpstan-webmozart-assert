@@ -8,28 +8,40 @@ use Webmozart\Assert\Assert;
 class CollectionTest
 {
 
-	public function allString(array $a): void
+	public function allString(array $a, $b): void
 	{
 		Assert::allString($a);
 		\PHPStan\Testing\assertType('array<string>', $a);
+
+		Assert::allString($b);
+		\PHPStan\Testing\assertType('iterable<string>', $b);
 	}
 
-	public function allStringNotEmpty(array $a): void
+	public function allStringNotEmpty(array $a, iterable $b, $c): void
 	{
 		Assert::allStringNotEmpty($a);
-		\PHPStan\Testing\assertType('array<string>', $a); // should be array<non-empty-string>
+		\PHPStan\Testing\assertType('array<non-empty-string>', $a);
+
+		Assert::allStringNotEmpty($b);
+		\PHPStan\Testing\assertType('iterable<non-empty-string>', $b);
+
+		Assert::allStringNotEmpty($c);
+		\PHPStan\Testing\assertType('iterable<non-empty-string>', $c);
 	}
 
-	public function allInteger(array $a, iterable $b, iterable $c): void
+	public function allInteger(array $a, iterable $b, $c): void
 	{
 		Assert::allInteger($a);
 		\PHPStan\Testing\assertType('array<int>', $a);
 
 		Assert::allInteger($b);
 		\PHPStan\Testing\assertType('iterable<int>', $b);
+
+		Assert::allInteger($c);
+		\PHPStan\Testing\assertType('iterable<int>', $c);
 	}
 
-	public function allInstanceOf(array $a, array $b, array $c): void
+	public function allInstanceOf(array $a, array $b, array $c, $d): void
 	{
 		Assert::allIsInstanceOf($a, stdClass::class);
 		\PHPStan\Testing\assertType('array<stdClass>', $a);
@@ -39,6 +51,9 @@ class CollectionTest
 
 		Assert::allIsInstanceOf($c, 17);
 		\PHPStan\Testing\assertType('array', $c);
+
+		Assert::allIsInstanceOf($d, new stdClass());
+		\PHPStan\Testing\assertType('iterable<stdClass>', $d);
 	}
 
 	/**
@@ -76,13 +91,16 @@ class CollectionTest
 		\PHPStan\Testing\assertType('array{1, -2|2, -3|3}', $a);
 	}
 
-	public function allSubclassOf(array $a, $b): void
+	public function allSubclassOf(array $a, iterable $b, $c): void
 	{
 		Assert::allSubclassOf($a, self::class);
 		\PHPStan\Testing\assertType('array<class-string<PHPStan\Type\WebMozartAssert\CollectionTest>|PHPStan\Type\WebMozartAssert\CollectionTest>', $a);
 
 		Assert::allSubclassOf($b, self::class);
 		\PHPStan\Testing\assertType('iterable<class-string<PHPStan\Type\WebMozartAssert\CollectionTest>|PHPStan\Type\WebMozartAssert\CollectionTest>', $b);
+
+		Assert::allSubclassOf($c, self::class);
+		\PHPStan\Testing\assertType('iterable<class-string<PHPStan\Type\WebMozartAssert\CollectionTest>|PHPStan\Type\WebMozartAssert\CollectionTest>', $c);
 	}
 
 	/**
@@ -90,7 +108,7 @@ class CollectionTest
 	 * @param array<int, array<string, mixed>> $b
 	 *
 	 */
-	public function allKeyExists(array $a, array $b, array $c): void
+	public function allKeyExists(array $a, array $b, array $c, $d): void
 	{
 		Assert::allKeyExists($a, 'id');
 		\PHPStan\Testing\assertType('array<array{id: int}>', $a);
