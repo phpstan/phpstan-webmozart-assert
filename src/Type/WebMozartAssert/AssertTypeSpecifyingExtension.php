@@ -23,9 +23,12 @@ use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
+use PhpParser\Node\Param;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\String_;
+use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\SpecifiedTypes;
 use PHPStan\Analyser\TypeSpecifier;
@@ -56,7 +59,6 @@ use function array_shift;
 use function count;
 use function key;
 use function lcfirst;
-use function reset;
 use function substr;
 
 class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
@@ -133,36 +135,25 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				$scope
 			);
 		}
+
+		if (substr($staticMethodReflection->getName(), 0, 3) === 'all') {
+			return $this->handleAll(
+				$staticMethodReflection->getName(),
+				$node,
+				$scope
+			);
+		}
+
 		$expression = self::createExpression($scope, $staticMethodReflection->getName(), $node->getArgs());
 		if ($expression === null) {
 			return new SpecifiedTypes([], []);
 		}
-		$specifiedTypes = $this->typeSpecifier->specifyTypesInCondition(
+
+		return $this->typeSpecifier->specifyTypesInCondition(
 			$scope,
 			$expression,
 			TypeSpecifierContext::createTruthy()
 		);
-
-		if (substr($staticMethodReflection->getName(), 0, 3) === 'all') {
-			if (count($specifiedTypes->getSureTypes()) > 0) {
-				$sureTypes = $specifiedTypes->getSureTypes();
-				reset($sureTypes);
-				$exprString = key($sureTypes);
-				$sureType = $sureTypes[$exprString];
-				return $this->arrayOrIterable(
-					$scope,
-					$sureType[0],
-					static function () use ($sureType): Type {
-						return $sureType[1];
-					}
-				);
-			}
-			if (count($specifiedTypes->getSureNotTypes()) > 0) {
-				throw new ShouldNotHappenException();
-			}
-		}
-
-		return $specifiedTypes;
 	}
 
 	/**
@@ -753,6 +744,66 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		}
 
 		throw new ShouldNotHappenException();
+	}
+
+	private function handleAll(
+		string $methodName,
+		StaticCall $node,
+		Scope $scope
+	): SpecifiedTypes
+	{
+		$closureItemVariable = new Variable('item');
+		$closureArgs = $node->getArgs();
+		$closureArgs[0] = new Arg($closureItemVariable);
+
+		$expression = new BooleanAnd(
+			new FuncCall(new Name('is_iterable'), [$node->getArgs()[0]]),
+			new Identical(
+				$node->getArgs()[0]->value,
+				new FuncCall(
+					new Name('array_filter'),
+					[
+						new Arg($node->getArgs()[0]->value),
+						new Arg(
+							new Expr\Closure(
+								[
+									'static' => true,
+									'params' => [new Param($closureItemVariable)],
+									'stmts' => [
+										new Return_(self::createExpression($scope, $methodName, $closureArgs)),
+									],
+								]
+							)
+						),
+					]
+				)
+			)
+		);
+
+		$specifiedTypes = $this->typeSpecifier->specifyTypesInCondition(
+			$scope,
+			$expression,
+			TypeSpecifierContext::createTruthy()
+		);
+
+		if (count($specifiedTypes->getSureTypes()) > 0) {
+			$sureTypes = $specifiedTypes->getSureTypes();
+			$exprString = key($sureTypes);
+			[$exprNode, $type] = $sureTypes[$exprString];
+
+			return $this->arrayOrIterable(
+				$scope,
+				$exprNode,
+				static function () use ($type): Type {
+					return $type->getIterableValueType();
+				}
+			);
+		}
+		if (count($specifiedTypes->getSureNotTypes()) > 0) {
+			throw new ShouldNotHappenException();
+		}
+
+		return $specifiedTypes;
 	}
 
 	private function arrayOrIterable(
