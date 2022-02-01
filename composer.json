@@ -6,27 +6,26 @@
 		"MIT"
 	],
 	"require": {
-		"php": "~7.1",
-		"phpstan/phpstan": "^0.12.6"
+		"php": "^7.1 || ^8.0",
+		"phpstan/phpstan": "^1.0"
 	},
 	"require-dev": {
-		"consistence/coding-standard": "^3.7",
-		"dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
-		"ergebnis/composer-normalize": "^2.0.2",
-		"jakub-onderka/php-parallel-lint": "^1.0",
-		"phing/phing": "^2.16.0",
-		"phpstan/phpstan-phpunit": "^0.12.6",
-		"phpstan/phpstan-strict-rules": "^0.12.1",
-		"phpunit/phpunit": "^7.5.18",
-		"slevomat/coding-standard": "^4.5.2",
-		"webmozart/assert": "^1.7.0"
+		"nikic/php-parser": "^4.13.0",
+		"php-parallel-lint/php-parallel-lint": "^1.2",
+		"phpstan/phpstan-phpunit": "^1.0",
+		"phpstan/phpstan-strict-rules": "^1.0",
+		"phpunit/phpunit": "^9.5",
+		"webmozart/assert": "^1.10.0"
 	},
 	"config": {
+		"platform": {
+			"php": "7.4.6"
+		},
 		"sort-packages": true
 	},
 	"extra": {
 		"branch-alias": {
-			"dev-master": "0.12-dev"
+			"dev-master": "1.0-dev"
 		},
 		"phpstan": {
 			"includes": [

@@ -2,29 +2,19 @@
 
 namespace PHPStan\Type\WebMozartAssert;
 
-use PHPStan\Rules\Comparison\ImpossibleCheckTypeHelper;
 use PHPStan\Rules\Comparison\ImpossibleCheckTypeStaticMethodCallRule;
 use PHPStan\Rules\Rule;
+use PHPStan\Testing\RuleTestCase;
 
 /**
- * @extends \PHPStan\Testing\RuleTestCase<ImpossibleCheckTypeStaticMethodCallRule>
+ * @extends RuleTestCase<ImpossibleCheckTypeStaticMethodCallRule>
  */
-class ImpossibleCheckTypeMethodCallRuleTest extends \PHPStan\Testing\RuleTestCase
+class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 {
 
 	protected function getRule(): Rule
 	{
-		return new ImpossibleCheckTypeStaticMethodCallRule(new ImpossibleCheckTypeHelper($this->createBroker(), $this->getTypeSpecifier(), [], true), true, true);
-	}
-
-	/**
-	 * @return \PHPStan\Type\StaticMethodTypeSpecifyingExtension[]
-	 */
-	protected function getStaticMethodTypeSpecifyingExtensions(): array
-	{
-		return [
-			new AssertTypeSpecifyingExtension(),
-		];
+		return self::getContainer()->getByType(ImpossibleCheckTypeStaticMethodCallRule::class);
 	}
 
 	public function testExtension(): void
@@ -35,6 +25,19 @@ class ImpossibleCheckTypeMethodCallRuleTest extends \PHPStan\Testing\RuleTestCas
 				13,
 			],
 		]);
+	}
+
+	public function testBug85(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-85.php'], []);
+	}
+
+	public static function getAdditionalConfigFiles(): array
+	{
+		return [
+			__DIR__ . '/../../../vendor/phpstan/phpstan-strict-rules/rules.neon',
+			__DIR__ . '/../../../extension.neon',
+		];
 	}
 
 }

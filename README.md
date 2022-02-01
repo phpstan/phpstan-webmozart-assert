@@ -1,10 +1,10 @@
 # PHPStan webmozart/assert extension
 
-[![Build Status](https://travis-ci.org/phpstan/phpstan-webmozart-assert.svg)](https://travis-ci.org/phpstan/phpstan-webmozart-assert)
+[![Build](https://github.com/phpstan/phpstan-webmozart-assert/workflows/Build/badge.svg)](https://github.com/phpstan/phpstan-webmozart-assert/actions)
 [![Latest Stable Version](https://poser.pugx.org/phpstan/phpstan-webmozart-assert/v/stable)](https://packagist.org/packages/phpstan/phpstan-webmozart-assert)
 [![License](https://poser.pugx.org/phpstan/phpstan-webmozart-assert/license)](https://packagist.org/packages/phpstan/phpstan-webmozart-assert)
 
-* [PHPStan](https://github.com/phpstan/phpstan)
+* [PHPStan](https://phpstan.org/)
 * [webmozart/assert](https://github.com/webmozart/assert)
 
 ## Description
@@ -29,10 +29,12 @@ function demo(?int $a) {
 This extension specifies types of values passed to:
 
 * `Assert::integer`
+* `Assert::positiveInteger`
 * `Assert::string`
 * `Assert::stringNotEmpty`
 * `Assert::float`
 * `Assert::numeric`
+* `Assert::natural`
 * `Assert::integerish`
 * `Assert::boolean`
 * `Assert::scalar`
@@ -53,6 +55,24 @@ This extension specifies types of values passed to:
 * `Assert::same`
 * `Assert::notSame`
 * `Assert::implementsInterface`
+* `Assert::classExists`
+* `Assert::interfaceExists`
+* `Assert::keyExists`
+* `Assert::keyNotExists`
+* `Assert::validArrayKey`
+* `Assert::count`
+* `Assert::minCount`
+* `Assert::maxCount`
+* `Assert::countBetween`
+* `Assert::inArray`
+* `Assert::oneOf`
+* `Assert::methodExists`
+* `Assert::propertyExists`
+* `Assert::isArrayAccessible`
+* `Assert::length`
+* `Assert::minLength`
+* `Assert::maxLength`
+* `Assert::lengthBetween`
 * `nullOr*` and `all*` variants of the above methods
 
 

@@ -2,10 +2,25 @@
 
 namespace PHPStan\Type\WebMozartAssert;
 
+use ArrayAccess;
+use Closure;
+use Countable;
 use PhpParser\Node\Arg;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
+use PhpParser\Node\Expr\BinaryOp\BooleanOr;
+use PhpParser\Node\Expr\BinaryOp\Greater;
+use PhpParser\Node\Expr\BinaryOp\GreaterOrEqual;
+use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\BinaryOp\NotIdentical;
+use PhpParser\Node\Expr\BinaryOp\SmallerOrEqual;
+use PhpParser\Node\Expr\BooleanNot;
+use PhpParser\Node\Expr\ConstFetch;
+use PhpParser\Node\Expr\FuncCall;
+use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Name;
+use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\SpecifiedTypes;
@@ -13,6 +28,7 @@ use PHPStan\Analyser\TypeSpecifier;
 use PHPStan\Analyser\TypeSpecifierAwareExtension;
 use PHPStan\Analyser\TypeSpecifierContext;
 use PHPStan\Reflection\MethodReflection;
+use PHPStan\ShouldNotHappenException;
 use PHPStan\Type\ArrayType;
 use PHPStan\Type\Constant\ConstantArrayType;
 use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
@@ -24,14 +40,22 @@ use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use PHPStan\Type\TypeUtils;
+use ReflectionObject;
+use Traversable;
+use function array_key_exists;
+use function count;
+use function key;
+use function lcfirst;
+use function reset;
+use function substr;
 
 class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
 
-	/** @var \Closure[] */
+	/** @var Closure[] */
 	private static $resolvers;
 
-	/** @var \PHPStan\Analyser\TypeSpecifier */
+	/** @var TypeSpecifier */
 	private $typeSpecifier;
 
 	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
@@ -57,7 +81,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				'allNotSame' => 2,
 			];
 			return array_key_exists($staticMethodReflection->getName(), $methods)
-				&& count($node->args) >= $methods[$staticMethodReflection->getName()];
+				&& count($node->getArgs()) >= $methods[$staticMethodReflection->getName()];
 		}
 
 		$trimmedName = self::trimName($staticMethodReflection->getName());
@@ -68,9 +92,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		}
 
 		$resolver = $resolvers[$trimmedName];
-		$resolverReflection = new \ReflectionObject($resolver);
+		$resolverReflection = new ReflectionObject($resolver);
 
-		return count($node->args) >= (count($resolverReflection->getMethod('__invoke')->getParameters()) - 1);
+		return count($node->getArgs()) >= count($resolverReflection->getMethod('__invoke')->getParameters()) - 1;
 	}
 
 	private static function trimName(string $name): string
@@ -99,7 +123,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				$scope
 			);
 		}
-		$expression = self::createExpression($scope, $staticMethodReflection->getName(), $node->args);
+		$expression = self::createExpression($scope, $staticMethodReflection->getName(), $node->getArgs());
 		if ($expression === null) {
 			return new SpecifiedTypes([], []);
 		}
@@ -118,13 +142,13 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				return $this->arrayOrIterable(
 					$scope,
 					$sureType[0],
-					function () use ($sureType): Type {
+					static function () use ($sureType): Type {
 						return $sureType[1];
 					}
 				);
 			}
 			if (count($specifiedTypes->getSureNotTypes()) > 0) {
-				throw new \PHPStan\ShouldNotHappenException();
+				throw new ShouldNotHappenException();
 			}
 		}
 
@@ -132,16 +156,13 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	}
 
 	/**
-	 * @param Scope $scope
-	 * @param string $name
-	 * @param \PhpParser\Node\Arg[] $args
-	 * @return \PhpParser\Node\Expr|null
+	 * @param Arg[] $args
 	 */
 	private static function createExpression(
 		Scope $scope,
 		string $name,
 		array $args
-	): ?\PhpParser\Node\Expr
+	): ?Expr
 	{
 		$trimmedName = self::trimName($name);
 		$resolvers = self::getExpressionResolvers();
@@ -152,11 +173,11 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		}
 
 		if (substr($name, 0, 6) === 'nullOr') {
-			$expression = new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
+			$expression = new BooleanOr(
 				$expression,
-				new \PhpParser\Node\Expr\BinaryOp\Identical(
+				new Identical(
 					$args[0]->value,
-					new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null'))
+					new ConstFetch(new Name('null'))
 				)
 			);
 		}
@@ -165,28 +186,40 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	}
 
 	/**
-	 * @return \Closure[]
+	 * @return Closure[]
 	 */
 	private static function getExpressionResolvers(): array
 	{
 		if (self::$resolvers === null) {
 			self::$resolvers = [
-				'integer' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_int'),
+				'integer' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_int'),
 						[$value]
 					);
 				},
-				'string' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_string'),
-						[$value]
-					);
-				},
-				'stringNotEmpty' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
+				'positiveInteger' => static function (Scope $scope, Arg $value): Expr {
 					return new BooleanAnd(
-						new \PhpParser\Node\Expr\FuncCall(
-							new \PhpParser\Node\Name('is_string'),
+						new FuncCall(
+							new Name('is_int'),
+							[$value]
+						),
+						new Greater(
+							$value->value,
+							new LNumber(0)
+						)
+					);
+				},
+				'string' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_string'),
+						[$value]
+					);
+				},
+				'stringNotEmpty' => static function (Scope $scope, Arg $value): Expr {
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_string'),
 							[$value]
 						),
 						new NotIdentical(
@@ -195,121 +228,136 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
-				'float' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_float'),
+				'float' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_float'),
 						[$value]
 					);
 				},
-				'integerish' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
-						new \PhpParser\Node\Expr\BinaryOp\BooleanAnd(
-							new \PhpParser\Node\Expr\FuncCall(
-								new \PhpParser\Node\Name('is_string'),
-								[$value]
-							),
-							new \PhpParser\Node\Expr\FuncCall(
-								new \PhpParser\Node\Name('is_numeric'),
-								[$value]
-							)
-						),
-						new \PhpParser\Node\Expr\FuncCall(
-							new \PhpParser\Node\Name('is_int'),
+				'integerish' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_numeric'),
+						[$value]
+					);
+				},
+				'numeric' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_numeric'),
+						[$value]
+					);
+				},
+				'natural' => static function (Scope $scope, Arg $value): Expr {
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_int'),
 							[$value]
+						),
+						new GreaterOrEqual(
+							$value->value,
+							new LNumber(0)
 						)
 					);
 				},
-				'numeric' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_numeric'),
+				'boolean' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_bool'),
 						[$value]
 					);
 				},
-				'boolean' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_bool'),
+				'scalar' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_scalar'),
 						[$value]
 					);
 				},
-				'scalar' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_scalar'),
+				'object' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_object'),
 						[$value]
 					);
 				},
-				'object' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_object'),
+				'resource' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_resource'),
 						[$value]
 					);
 				},
-				'resource' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_resource'),
+				'isCallable' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_callable'),
 						[$value]
 					);
 				},
-				'isCallable' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_callable'),
+				'isArray' => static function (Scope $scope, Arg $value): Expr {
+					return new FuncCall(
+						new Name('is_array'),
 						[$value]
 					);
 				},
-				'isArray' => function (Scope $scope, Arg $value): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_array'),
-						[$value]
-					);
-				},
-				'isIterable' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
-						new \PhpParser\Node\Expr\FuncCall(
-							new \PhpParser\Node\Name('is_array'),
+				'isIterable' => static function (Scope $scope, Arg $expr): Expr {
+					return new BooleanOr(
+						new FuncCall(
+							new Name('is_array'),
 							[$expr]
 						),
-						new \PhpParser\Node\Expr\Instanceof_(
+						new Instanceof_(
 							$expr->value,
-							new \PhpParser\Node\Name(\Traversable::class)
+							new Name(Traversable::class)
 						)
 					);
 				},
-				'isCountable' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
-						new \PhpParser\Node\Expr\FuncCall(
-							new \PhpParser\Node\Name('is_array'),
+				'isList' => static function (Scope $scope, Arg $expr): Expr {
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_array'),
 							[$expr]
 						),
-						new \PhpParser\Node\Expr\Instanceof_(
+						new Identical(
 							$expr->value,
-							new \PhpParser\Node\Name(\Countable::class)
+							new FuncCall(
+								new Name('array_values'),
+								[$expr]
+							)
 						)
 					);
 				},
-				'isInstanceOf' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
+				'isCountable' => static function (Scope $scope, Arg $expr): Expr {
+					return new BooleanOr(
+						new FuncCall(
+							new Name('is_array'),
+							[$expr]
+						),
+						new Instanceof_(
+							$expr->value,
+							new Name(Countable::class)
+						)
+					);
+				},
+				'isInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
 					if (!$classType instanceof ConstantStringType) {
 						return null;
 					}
 
-					return new \PhpParser\Node\Expr\Instanceof_(
+					return new Instanceof_(
 						$expr->value,
-						new \PhpParser\Node\Name($classType->getValue())
+						new Name($classType->getValue())
 					);
 				},
-				'notInstanceOf' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
+				'notInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
 					if (!$classType instanceof ConstantStringType) {
 						return null;
 					}
 
-					return new \PhpParser\Node\Expr\BooleanNot(
-						new \PhpParser\Node\Expr\Instanceof_(
+					return new BooleanNot(
+						new Instanceof_(
 							$expr->value,
-							new \PhpParser\Node\Name($classType->getValue())
+							new Name($classType->getValue())
 						)
 					);
 				},
-				'isInstanceOfAny' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
+				'isInstanceOfAny' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
 					if (!$classType instanceof ConstantArrayType) {
 						return null;
@@ -325,31 +373,31 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					$orRight = array_pop($constantStringTypes);
 
 					if (!$orRight instanceof ConstantStringType) {
-						throw new \PHPStan\ShouldNotHappenException();
+						throw new ShouldNotHappenException();
 					}
 
 					// If array has only one entry, it's the same as 'isInstanceOf'
 					if (count($constantStringTypes) === 0) {
-						return new \PhpParser\Node\Expr\Instanceof_(
+						return new Instanceof_(
 							$expr->value,
-							new \PhpParser\Node\Name($orRight->getValue())
+							new Name($orRight->getValue())
 						);
 					}
 
 					$orLeft = array_pop($constantStringTypes);
 
 					if (!$orLeft instanceof ConstantStringType) {
-						throw new \PHPStan\ShouldNotHappenException();
+						throw new ShouldNotHappenException();
 					}
 
-					$or = new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
-						new \PhpParser\Node\Expr\Instanceof_(
+					$or = new BooleanOr(
+						new Instanceof_(
 							$expr->value,
-							new \PhpParser\Node\Name($orLeft->getValue())
+							new Name($orLeft->getValue())
 						),
-						new \PhpParser\Node\Expr\Instanceof_(
+						new Instanceof_(
 							$expr->value,
-							new \PhpParser\Node\Name($orRight->getValue())
+							new Name($orRight->getValue())
 						)
 					);
 
@@ -357,13 +405,13 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						$orLeft = array_pop($constantStringTypes);
 
 						if (!$orLeft instanceof ConstantStringType) {
-							throw new \PHPStan\ShouldNotHappenException();
+							throw new ShouldNotHappenException();
 						}
 
-						$or = new \PhpParser\Node\Expr\BinaryOp\BooleanOr(
-							new \PhpParser\Node\Expr\Instanceof_(
+						$or = new BooleanOr(
+							new Instanceof_(
 								$expr->value,
-								new \PhpParser\Node\Name($orLeft->getValue())
+								new Name($orLeft->getValue())
 							),
 							$or
 						);
@@ -371,66 +419,262 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 					return $or;
 				},
-				'implementsInterface' => function (Scope $scope, Arg $expr, Arg $class): ?\PhpParser\Node\Expr {
+				'implementsInterface' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
 					if (!$classType instanceof ConstantStringType) {
 						return null;
 					}
 
-					return new \PhpParser\Node\Expr\Instanceof_(
+					return new Instanceof_(
 						$expr->value,
-						new \PhpParser\Node\Name($classType->getValue())
+						new Name($classType->getValue())
 					);
 				},
-				'true' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\Identical(
-						$expr->value,
-						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('true'))
+				'keyExists' => static function (Scope $scope, Arg $array, Arg $key): Expr {
+					return new FuncCall(
+						new Name('array_key_exists'),
+						[$key, $array]
 					);
 				},
-				'false' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\Identical(
-						$expr->value,
-						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('false'))
+				'keyNotExists' => static function (Scope $scope, Arg $array, Arg $key): Expr {
+					return new BooleanNot(
+						new FuncCall(
+							new Name('array_key_exists'),
+							[$key, $array]
+						)
 					);
 				},
-				'null' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\Identical(
-						$expr->value,
-						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null'))
+				'validArrayKey' => static function (Scope $scope, Arg $value): Expr {
+					return new BooleanOr(
+						new FuncCall(
+							new Name('is_int'),
+							[$value]
+						),
+						new FuncCall(
+							new Name('is_string'),
+							[$value]
+						)
 					);
 				},
-				'notFalse' => static function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\NotIdentical(
+				'true' => static function (Scope $scope, Arg $expr): Expr {
+					return new Identical(
 						$expr->value,
-						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('false'))
+						new ConstFetch(new Name('true'))
 					);
 				},
-				'notNull' => function (Scope $scope, Arg $expr): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\NotIdentical(
+				'false' => static function (Scope $scope, Arg $expr): Expr {
+					return new Identical(
 						$expr->value,
-						new \PhpParser\Node\Expr\ConstFetch(new \PhpParser\Node\Name('null'))
+						new ConstFetch(new Name('false'))
 					);
 				},
-				'same' => function (Scope $scope, Arg $value1, Arg $value2): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\Identical(
+				'null' => static function (Scope $scope, Arg $expr): Expr {
+					return new Identical(
+						$expr->value,
+						new ConstFetch(new Name('null'))
+					);
+				},
+				'notFalse' => static function (Scope $scope, Arg $expr): Expr {
+					return new NotIdentical(
+						$expr->value,
+						new ConstFetch(new Name('false'))
+					);
+				},
+				'notNull' => static function (Scope $scope, Arg $expr): Expr {
+					return new NotIdentical(
+						$expr->value,
+						new ConstFetch(new Name('null'))
+					);
+				},
+				'same' => static function (Scope $scope, Arg $value1, Arg $value2): Expr {
+					return new Identical(
 						$value1->value,
 						$value2->value
 					);
 				},
-				'notSame' => function (Scope $scope, Arg $value1, Arg $value2): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\BinaryOp\NotIdentical(
+				'notSame' => static function (Scope $scope, Arg $value1, Arg $value2): Expr {
+					return new NotIdentical(
 						$value1->value,
 						$value2->value
 					);
 				},
-				'subclassOf' => function (Scope $scope, Arg $expr, Arg $class): \PhpParser\Node\Expr {
-					return new \PhpParser\Node\Expr\FuncCall(
-						new \PhpParser\Node\Name('is_subclass_of'),
+				'subclassOf' => static function (Scope $scope, Arg $expr, Arg $class): Expr {
+					return new FuncCall(
+						new Name('is_subclass_of'),
 						[
 							new Arg($expr->value),
 							$class,
 						]
+					);
+				},
+				'classExists' => static function (Scope $scope, Arg $class): Expr {
+					return new FuncCall(
+						new Name('class_exists'),
+						[$class]
+					);
+				},
+				'interfaceExists' => static function (Scope $scope, Arg $class): Expr {
+					return new FuncCall(
+						new Name('interface_exists'),
+						[$class]
+					);
+				},
+				'count' => static function (Scope $scope, Arg $array, Arg $number): Expr {
+					return new Identical(
+						new FuncCall(
+							new Name('count'),
+							[$array]
+						),
+						$number->value
+					);
+				},
+				'minCount' => static function (Scope $scope, Arg $array, Arg $min): Expr {
+					return new GreaterOrEqual(
+						new FuncCall(
+							new Name('count'),
+							[$array]
+						),
+						$min->value
+					);
+				},
+				'maxCount' => static function (Scope $scope, Arg $array, Arg $max): Expr {
+					return new SmallerOrEqual(
+						new FuncCall(
+							new Name('count'),
+							[$array]
+						),
+						$max->value
+					);
+				},
+				'countBetween' => static function (Scope $scope, Arg $array, Arg $min, Arg $max): Expr {
+					return new BooleanAnd(
+						new GreaterOrEqual(
+							new FuncCall(
+								new Name('count'),
+								[$array]
+							),
+							$min->value
+						),
+						new SmallerOrEqual(
+							new FuncCall(
+								new Name('count'),
+								[$array]
+							),
+							$max->value
+						)
+					);
+				},
+				'length' => static function (Scope $scope, Arg $value, Arg $length): Expr {
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_string'),
+							[$value]
+						),
+						new Identical(
+							new FuncCall(
+								new Name('strlen'),
+								[$value]
+							),
+							$length->value
+						)
+					);
+				},
+				'minLength' => static function (Scope $scope, Arg $value, Arg $min): Expr {
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_string'),
+							[$value]
+						),
+						new GreaterOrEqual(
+							new FuncCall(
+								new Name('strlen'),
+								[$value]
+							),
+							$min->value
+						)
+					);
+				},
+				'maxLength' => static function (Scope $scope, Arg $value, Arg $max): Expr {
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_string'),
+							[$value]
+						),
+						new SmallerOrEqual(
+							new FuncCall(
+								new Name('strlen'),
+								[$value]
+							),
+							$max->value
+						)
+					);
+				},
+				'lengthBetween' => static function (Scope $scope, Arg $value, Arg $min, Arg $max): Expr {
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_string'),
+							[$value]
+						),
+						new BooleanAnd(
+							new GreaterOrEqual(
+								new FuncCall(
+									new Name('strlen'),
+									[$value]
+								),
+								$min->value
+							),
+							new SmallerOrEqual(
+								new FuncCall(
+									new Name('strlen'),
+									[$value]
+								),
+								$max->value
+							)
+						)
+					);
+				},
+				'inArray' => static function (Scope $scope, Arg $needle, Arg $array): Expr {
+					return new FuncCall(
+						new Name('in_array'),
+						[
+							$needle,
+							$array,
+							new Arg(new ConstFetch(new Name('true'))),
+						]
+					);
+				},
+				'oneOf' => static function (Scope $scope, Arg $needle, Arg $array): Expr {
+					return new FuncCall(
+						new Name('in_array'),
+						[
+							$needle,
+							$array,
+							new Arg(new ConstFetch(new Name('true'))),
+						]
+					);
+				},
+				'methodExists' => static function (Scope $scope, Arg $object, Arg $method): Expr {
+					return new FuncCall(
+						new Name('method_exists'),
+						[$object, $method]
+					);
+				},
+				'propertyExists' => static function (Scope $scope, Arg $object, Arg $property): Expr {
+					return new FuncCall(
+						new Name('property_exists'),
+						[$object, $property]
+					);
+				},
+				'isArrayAccessible' => static function (Scope $scope, Arg $expr): Expr {
+					return new BooleanOr(
+						new FuncCall(
+							new Name('is_array'),
+							[$expr]
+						),
+						new Instanceof_(
+							$expr->value,
+							new Name(ArrayAccess::class)
+						)
 					);
 				},
 			];
@@ -448,13 +692,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		if ($methodName === 'allNotNull') {
 			return $this->arrayOrIterable(
 				$scope,
-				$node->args[0]->value,
-				function (Type $type): Type {
+				$node->getArgs()[0]->value,
+				static function (Type $type): Type {
 					return TypeCombinator::removeNull($type);
 				}
 			);
-		} elseif ($methodName === 'allNotInstanceOf') {
-			$classType = $scope->getType($node->args[1]->value);
+		}
+
+		if ($methodName === 'allNotInstanceOf') {
+			$classType = $scope->getType($node->getArgs()[1]->value);
 			if (!$classType instanceof ConstantStringType) {
 				return new SpecifiedTypes([], []);
 			}
@@ -462,32 +708,34 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			$objectType = new ObjectType($classType->getValue());
 			return $this->arrayOrIterable(
 				$scope,
-				$node->args[0]->value,
-				function (Type $type) use ($objectType): Type {
+				$node->getArgs()[0]->value,
+				static function (Type $type) use ($objectType): Type {
 					return TypeCombinator::remove($type, $objectType);
 				}
 			);
-		} elseif ($methodName === 'allNotSame') {
-			$valueType = $scope->getType($node->args[1]->value);
+		}
+
+		if ($methodName === 'allNotSame') {
+			$valueType = $scope->getType($node->getArgs()[1]->value);
 			return $this->arrayOrIterable(
 				$scope,
-				$node->args[0]->value,
-				function (Type $type) use ($valueType): Type {
+				$node->getArgs()[0]->value,
+				static function (Type $type) use ($valueType): Type {
 					return TypeCombinator::remove($type, $valueType);
 				}
 			);
 		}
 
-		throw new \PHPStan\ShouldNotHappenException();
+		throw new ShouldNotHappenException();
 	}
 
 	private function arrayOrIterable(
 		Scope $scope,
-		\PhpParser\Node\Expr $expr,
-		\Closure $typeCallback
+		Expr $expr,
+		Closure $typeCallback
 	): SpecifiedTypes
 	{
-		$currentType = $scope->getType($expr);
+		$currentType = TypeCombinator::intersect($scope->getType($expr), new IterableType(new MixedType(), new MixedType()));
 		$arrayTypes = TypeUtils::getArrays($currentType);
 		if (count($arrayTypes) > 0) {
 			$newArrayTypes = [];
