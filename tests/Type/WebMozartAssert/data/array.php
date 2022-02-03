@@ -106,4 +106,13 @@ class ArrayTest
 		\PHPStan\Testing\assertType('array<int, mixed>|null', $b);
 	}
 
+	public function isMap($a, $b): void
+	{
+		Assert::isMap($a);
+		\PHPStan\Testing\assertType('array<string, mixed>', $a);
+
+		Assert::nullOrIsMap($b);
+		\PHPStan\Testing\assertType('array<string, mixed>|null', $b);
+	}
+
 }

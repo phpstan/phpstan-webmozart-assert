@@ -314,11 +314,26 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 							[$expr]
 						),
 						new Identical(
-							$expr->value,
 							new FuncCall(
-								new Name('array_values'),
-								[$expr]
-							)
+								new Name('array_filter'),
+								[$expr, new Arg(new String_('is_int')), new Arg(new ConstFetch(new Name('ARRAY_FILTER_USE_KEY')))]
+							),
+							$expr->value
+						)
+					);
+				},
+				'isMap' => static function (Scope $scope, Arg $expr): Expr {
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_array'),
+							[$expr]
+						),
+						new Identical(
+							new FuncCall(
+								new Name('array_filter'),
+								[$expr, new Arg(new String_('is_string')), new Arg(new ConstFetch(new Name('ARRAY_FILTER_USE_KEY')))]
+							),
+							$expr->value
 						)
 					);
 				},
