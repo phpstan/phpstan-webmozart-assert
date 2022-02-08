@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="PHPStan webmozart/assert extension">
+<ruleset name="PHPStan deprecation rules">
 	<config name="php_version" value="70100"/>
 	<arg name="colors"/>
 	<arg name="extensions" value="php"/>
@@ -33,6 +33,7 @@
 	</rule>
 	<rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
 		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/>
+		<exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint"/>
 	</rule>
 	<rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.UselessAnnotation">
 		<severity>10</severity>
@@ -46,6 +47,7 @@
 	<rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint">
 		<exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification"/>
 		<exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingAnyTypeHint"/>
+		<exclude name="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint"/>
 	</rule>
 	<rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.UselessAnnotation">
 		<severity>10</severity>
@@ -105,6 +107,5 @@
 	</rule>
 	<rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps"/>
 	<rule ref="Consistence.NamingConventions.ValidVariableName.NotCamelCaps"/>
-	<exclude-pattern>tests/tmp</exclude-pattern>
 	<exclude-pattern>tests/*/data</exclude-pattern>
 </ruleset>
