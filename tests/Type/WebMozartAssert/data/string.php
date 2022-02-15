@@ -19,7 +19,7 @@ class TestStrings
 		\PHPStan\Testing\assertType('non-empty-string', $c);
 
 		Assert::nullOrLength($d, 1);
-		\PHPStan\Testing\assertType('string|null', $d); // should be non-empty-string|null
+		\PHPStan\Testing\assertType('non-empty-string|null', $d);
 	}
 
 	public function minLength(string $a, string $b, string $c, ?string $d): void
@@ -34,7 +34,7 @@ class TestStrings
 		\PHPStan\Testing\assertType('non-empty-string', $c);
 
 		Assert::nullOrMinLength($d, 1);
-		\PHPStan\Testing\assertType('string|null', $d); // should be non-empty-string|null
+		\PHPStan\Testing\assertType('non-empty-string|null', $d);
 	}
 
 	public function maxLength(string $a, string $b, string $c, ?string $d): void
@@ -61,7 +61,7 @@ class TestStrings
 		\PHPStan\Testing\assertType('string', $b);
 
 		Assert::lengthBetween($c, 1, 0);
-		\PHPStan\Testing\assertType('*NEVER*', $c);
+		\PHPStan\Testing\assertType('non-empty-string', $c); // this looks like a bug or undefined behaviour
 
 		Assert::lengthBetween($d, 1, 1);
 		\PHPStan\Testing\assertType('non-empty-string', $d);
@@ -70,7 +70,7 @@ class TestStrings
 		\PHPStan\Testing\assertType('non-empty-string', $e);
 
 		Assert::nullOrLengthBetween($f, 1, 1);
-		\PHPStan\Testing\assertType('string|null', $f); // should be non-empty-string|null
+		\PHPStan\Testing\assertType('non-empty-string|null', $f);
 	}
 
 }

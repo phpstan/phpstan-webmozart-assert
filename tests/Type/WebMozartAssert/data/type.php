@@ -22,7 +22,7 @@ class TypeTest
 		\PHPStan\Testing\assertType('non-empty-string', $a);
 
 		Assert::nullOrStringNotEmpty($b);
-		\PHPStan\Testing\assertType('string|null', $b); // should be non-empty-string|null
+		\PHPStan\Testing\assertType('non-empty-string|null', $b);
 	}
 
 	public function integer($a, $b): void
