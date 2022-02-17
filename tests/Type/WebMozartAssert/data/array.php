@@ -106,6 +106,15 @@ class ArrayTest
 		\PHPStan\Testing\assertType('array<int, mixed>|null', $b);
 	}
 
+	public function isNonEmptyList($a, $b): void
+	{
+		Assert::isNonEmptyList($a);
+		\PHPStan\Testing\assertType('non-empty-array<int, mixed>', $a);
+
+		Assert::nullOrIsNonEmptyList($b);
+		\PHPStan\Testing\assertType('non-empty-array<int, mixed>|null', $b);
+	}
+
 	public function isMap($a, $b): void
 	{
 		Assert::isMap($a);
@@ -113,6 +122,15 @@ class ArrayTest
 
 		Assert::nullOrIsMap($b);
 		\PHPStan\Testing\assertType('array<string, mixed>|null', $b);
+	}
+
+	public function isNonEmptyMap($a, $b): void
+	{
+		Assert::isNonEmptyMap($a);
+		\PHPStan\Testing\assertType('non-empty-array<string, mixed>', $a);
+
+		Assert::nullOrIsNonEmptyMap($b);
+		\PHPStan\Testing\assertType('non-empty-array<string, mixed>|null', $b);
 	}
 
 }
