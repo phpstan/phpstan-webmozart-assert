@@ -72,7 +72,9 @@ This extension specifies types of values passed to:
 * `Assert::maxCount`
 * `Assert::countBetween`
 * `Assert::isList`
+* `Assert::isNonEmptyList`
 * `Assert::isMap`
+* `Assert::isNonEmptyMap`
 * `Assert::inArray`
 * `Assert::oneOf`
 * `Assert::methodExists`

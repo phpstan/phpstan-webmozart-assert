@@ -331,6 +331,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
+				'isNonEmptyList' => static function (Scope $scope, Arg $expr): Expr {
+					return new BooleanAnd(
+						self::$resolvers['isList']($scope, $expr),
+						new NotIdentical(
+							$expr->value,
+							new Array_()
+						)
+					);
+				},
 				'isMap' => static function (Scope $scope, Arg $expr): Expr {
 					return new BooleanAnd(
 						new FuncCall(
@@ -343,6 +352,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 								[$expr, new Arg(new String_('is_string')), new Arg(new ConstFetch(new Name('ARRAY_FILTER_USE_KEY')))]
 							),
 							$expr->value
+						)
+					);
+				},
+				'isNonEmptyMap' => static function (Scope $scope, Arg $expr): Expr {
+					return new BooleanAnd(
+						self::$resolvers['isMap']($scope, $expr),
+						new NotIdentical(
+							$expr->value,
+							new Array_()
 						)
 					);
 				},
