@@ -7,6 +7,9 @@ use Closure;
 use Countable;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrayItem;
+use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 use PhpParser\Node\Expr\BinaryOp\Greater;
@@ -45,7 +48,11 @@ use PHPStan\Type\TypeUtils;
 use PHPStan\Type\TypeWithClassName;
 use ReflectionObject;
 use Traversable;
+use function array_filter;
 use function array_key_exists;
+use function array_map;
+use function array_reduce;
+use function array_shift;
 use function count;
 use function key;
 use function lcfirst;
@@ -365,6 +372,21 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						$expr->value,
 						$className
 					);
+				},
+				'isInstanceOfAny' => static function (Scope $scope, Arg $expr, Arg $classes): ?Expr {
+					if (!$classes->value instanceof Array_ || $classes->value->items === null) {
+						return null;
+					}
+
+					$resolvers = array_map(
+						static function (?ArrayItem $class) use ($scope, $expr) {
+							return $class !== null ? self::$resolvers['isInstanceOf']($scope, $expr, new Arg($class->value)) : null;
+						},
+						$classes->value->items
+					);
+					$resolvers = array_filter($resolvers);
+
+					return self::implodeExpr($resolvers, BooleanOr::class);
 				},
 				'notInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
@@ -776,6 +798,26 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			$expr,
 			$specifiedType,
 			TypeSpecifierContext::createTruthy()
+		);
+	}
+
+	/**
+	 * @param Expr[] $expressions
+	 * @param class-string<BinaryOp> $binaryOp
+	 */
+	private static function implodeExpr(array $expressions, string $binaryOp): ?Expr
+	{
+		$firstExpression = array_shift($expressions);
+		if ($firstExpression === null) {
+			return null;
+		}
+
+		return array_reduce(
+			$expressions,
+			static function (Expr $carry, Expr $item) use ($binaryOp) {
+				return new $binaryOp($carry, $item);
+			},
+			$firstExpression
 		);
 	}
 

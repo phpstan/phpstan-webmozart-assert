@@ -45,6 +45,7 @@ This extension specifies types of values passed to:
 * `Assert::isIterable`
 * `Assert::isCountable`
 * `Assert::isInstanceOf`
+* `Assert::isInstanceOfAny`
 * `Assert::notInstanceOf`
 * `Assert::isAOf`
 * `Assert::subclassOf`
