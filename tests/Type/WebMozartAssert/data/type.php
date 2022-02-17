@@ -174,6 +174,30 @@ class TypeTest
 		\PHPStan\Testing\assertType('mixed', $d);
 	}
 
+	public function isInstanceOfAny($a, $b, $c, $d, $e, $f, $g): void
+	{
+		Assert::isInstanceOfAny($a, [self::class, new stdClass()]);
+		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\TypeTest|stdClass', $a);
+
+		Assert::isInstanceOfAny($b, [new stdClass()]);
+		\PHPStan\Testing\assertType('stdClass', $b);
+
+		Assert::isInstanceOfAny($c, []);
+		\PHPStan\Testing\assertType('mixed', $c);
+
+		Assert::isInstanceOfAny($d, 'foo');
+		\PHPStan\Testing\assertType('mixed', $d);
+
+		Assert::isInstanceOfAny($e, [17]);
+		\PHPStan\Testing\assertType('mixed', $e);
+
+		Assert::isInstanceOfAny($f, [17, self::class]);
+		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\TypeTest', $f);
+
+		Assert::nullOrIsInstanceOfAny($g, [self::class, new stdClass()]);
+		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\TypeTest|stdClass|null', $g);
+	}
+
 	/**
 	 * @param Foo|Bar $a
 	 * @param Foo|stdClass $b
