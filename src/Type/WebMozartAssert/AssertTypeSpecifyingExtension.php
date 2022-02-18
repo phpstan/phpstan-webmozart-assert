@@ -37,6 +37,7 @@ use PHPStan\Type\IterableType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
+use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use PHPStan\Type\TypeUtils;
@@ -379,6 +380,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 							$expr->value,
 							$className
 						)
+					);
+				},
+				'isAOf' => static function (Scope $scope, Arg $expr, Arg $class): Expr {
+					$exprType = $scope->getType($expr->value);
+					$allowString = (new StringType())->isSuperTypeOf($exprType)->yes();
+
+					return new FuncCall(
+						new Name('is_a'),
+						[$expr, $class, new Arg(new ConstFetch(new Name($allowString ? 'true' : 'false')))]
 					);
 				},
 				'implementsInterface' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
