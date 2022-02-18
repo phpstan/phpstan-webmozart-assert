@@ -191,6 +191,24 @@ class TypeTest
 		\PHPStan\Testing\assertType('PHPStan\Type\WebMozartAssert\Bar|PHPStan\Type\WebMozartAssert\Foo', $c);
 	}
 
+	public function isAOf($a, $b, string $c): void
+	{
+		Assert::isAOf($a, stdClass::class);
+		\PHPStan\Testing\assertType('stdClass', $a);
+
+		Assert::isAOf(Foo::class, stdClass::class);
+		\PHPStan\Testing\assertType('*NEVER*', Foo::class);
+
+		Assert::isAOf(Bar::class, stdClass::class);
+		\PHPStan\Testing\assertType('\'PHPStan\\\Type\\\WebMozartAssert\\\Bar\'', Bar::class);
+
+		Assert::nullOrIsAOf($b, stdClass::class);
+		\PHPStan\Testing\assertType('stdClass|null', $b);
+
+		Assert::isAOf($c, stdClass::class);
+		\PHPStan\Testing\assertType('class-string<stdClass>', $c);
+	}
+
 	public function isArrayAccessible($a, $b): void
 	{
 		Assert::isArrayAccessible($a);
@@ -200,3 +218,7 @@ class TypeTest
 		\PHPStan\Testing\assertType('array|ArrayAccess|null', $b);
 	}
 }
+
+class Foo {}
+
+class Bar extends stdClass {}
