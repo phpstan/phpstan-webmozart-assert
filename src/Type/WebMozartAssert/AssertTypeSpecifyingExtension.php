@@ -389,21 +389,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					return self::implodeExpr($resolvers, BooleanOr::class);
 				},
 				'notInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
-					$classType = $scope->getType($class->value);
-					if ($classType instanceof ConstantStringType) {
-						$className = new Name($classType->getValue());
-					} elseif ($classType instanceof TypeWithClassName) {
-						$className = new Name($classType->getClassName());
-					} else {
+					$expr = self::$resolvers['isInstanceOf']($scope, $expr, $class);
+					if ($expr === null) {
 						return null;
 					}
 
-					return new BooleanNot(
-						new Instanceof_(
-							$expr->value,
-							$className
-						)
-					);
+					return new BooleanNot($expr);
 				},
 				'isAOf' => static function (Scope $scope, Arg $expr, Arg $class): Expr {
 					$exprType = $scope->getType($expr->value);
@@ -432,12 +423,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					);
 				},
 				'keyNotExists' => static function (Scope $scope, Arg $array, Arg $key): Expr {
-					return new BooleanNot(
-						new FuncCall(
-							new Name('array_key_exists'),
-							[$key, $array]
-						)
-					);
+					return new BooleanNot(self::$resolvers['keyExists']($scope, $array, $key));
 				},
 				'validArrayKey' => static function (Scope $scope, Arg $value): Expr {
 					return new BooleanOr(
