@@ -54,6 +54,11 @@ This extension specifies types of values passed to:
 * `Assert::notNull`
 * `Assert::same`
 * `Assert::notSame`
+* `Assert::greaterThan`
+* `Assert::greaterThanEq`
+* `Assert::lessThan`
+* `Assert::lessThanEq`
+* `Assert::range`
 * `Assert::implementsInterface`
 * `Assert::classExists`
 * `Assert::interfaceExists`

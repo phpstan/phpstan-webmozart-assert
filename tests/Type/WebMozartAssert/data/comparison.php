@@ -61,6 +61,57 @@ class ComparisonTest
 		\PHPStan\Testing\assertType('-1', $a);
 	}
 
+	public function greaterThan(int $a, ?int $b): void
+	{
+		Assert::greaterThan($a, 17);
+		\PHPStan\Testing\assertType('int<18, max>', $a);
+
+		Assert::nullOrGreaterThan($b, 17);
+		\PHPStan\Testing\assertType('int<18, max>|null', $b);
+	}
+
+	public function greaterThanEq(int $a, ?int $b): void
+	{
+		Assert::greaterThanEq($a, 17);
+		\PHPStan\Testing\assertType('int<17, max>', $a);
+
+		Assert::nullOrGreaterThanEq($b, 17);
+		\PHPStan\Testing\assertType('int<17, max>|null', $b);
+	}
+
+	public function lessThan(int $a, ?int $b): void
+	{
+		Assert::lessThan($a, 17);
+		\PHPStan\Testing\assertType('int<min, 16>', $a);
+
+		Assert::nullOrLessThan($b, 17);
+		\PHPStan\Testing\assertType('int<min, 16>|null', $b);
+	}
+
+	public function lessThanEq(int $a, ?int $b): void
+	{
+		Assert::lessThanEq($a, 17);
+		\PHPStan\Testing\assertType('int<min, 17>', $a);
+
+		Assert::nullOrLessThanEq($b, 17);
+		\PHPStan\Testing\assertType('int<min, 17>|null', $b);
+	}
+
+	public function range(int $a, int $b, int $c, ?int $d): void
+	{
+		Assert::range($a, 17, 19);
+		\PHPStan\Testing\assertType('int<17, 19>', $a);
+
+		Assert::range($b, 19, 17);
+		\PHPStan\Testing\assertType('*NEVER*', $b);
+
+		Assert::range($c, 17, 17);
+		\PHPStan\Testing\assertType('17', $c);
+
+		Assert::nullOrRange($d, 17, 19);
+		\PHPStan\Testing\assertType('int<17, 19>|null', $d);
+	}
+
 	public function inArray($a, $b): void
 	{
 		Assert::inArray($a, ['foo', 'bar']);
