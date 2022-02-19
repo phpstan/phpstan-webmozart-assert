@@ -13,6 +13,7 @@ use PhpParser\Node\Expr\BinaryOp\Greater;
 use PhpParser\Node\Expr\BinaryOp\GreaterOrEqual;
 use PhpParser\Node\Expr\BinaryOp\Identical;
 use PhpParser\Node\Expr\BinaryOp\NotIdentical;
+use PhpParser\Node\Expr\BinaryOp\Smaller;
 use PhpParser\Node\Expr\BinaryOp\SmallerOrEqual;
 use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\ConstFetch;
@@ -458,6 +459,42 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					return new NotIdentical(
 						$value1->value,
 						$value2->value
+					);
+				},
+				'greaterThan' => static function (Scope $scope, Arg $value, Arg $limit): Expr {
+					return new Greater(
+						$value->value,
+						$limit->value
+					);
+				},
+				'greaterThanEq' => static function (Scope $scope, Arg $value, Arg $limit): Expr {
+					return new GreaterOrEqual(
+						$value->value,
+						$limit->value
+					);
+				},
+				'lessThan' => static function (Scope $scope, Arg $value, Arg $limit): Expr {
+					return new Smaller(
+						$value->value,
+						$limit->value
+					);
+				},
+				'lessThanEq' => static function (Scope $scope, Arg $value, Arg $limit): Expr {
+					return new SmallerOrEqual(
+						$value->value,
+						$limit->value
+					);
+				},
+				'range' => static function (Scope $scope, Arg $value, Arg $min, Arg $max): Expr {
+					return new BooleanAnd(
+						new GreaterOrEqual(
+							$value->value,
+							$min->value
+						),
+						new SmallerOrEqual(
+							$value->value,
+							$max->value
+						)
 					);
 				},
 				'subclassOf' => static function (Scope $scope, Arg $expr, Arg $class): Expr {
