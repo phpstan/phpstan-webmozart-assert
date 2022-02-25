@@ -47,6 +47,24 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 		]);
 	}
 
+	public function testBug8(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-8.php'], [
+			[
+				'Call to static method Webmozart\Assert\Assert::numeric() with numeric-string will always evaluate to true.',
+				15,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::numeric() with \'foo\' will always evaluate to false.',
+				16,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::numeric() with \'17.19\' will always evaluate to true.',
+				17,
+			],
+		]);
+	}
+
 	public function testBug33(): void
 	{
 		$this->analyse([__DIR__ . '/data/bug-33.php'], []);
