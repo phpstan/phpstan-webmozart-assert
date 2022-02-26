@@ -679,14 +679,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					);
 				},
 				'oneOf' => static function (Scope $scope, Arg $needle, Arg $array): Expr {
-					return new FuncCall(
-						new Name('in_array'),
-						[
-							$needle,
-							$array,
-							new Arg(new ConstFetch(new Name('true'))),
-						]
-					);
+					return self::$resolvers['inArray']($scope, $needle, $array);
 				},
 				'methodExists' => static function (Scope $scope, Arg $object, Arg $method): Expr {
 					return new FuncCall(
