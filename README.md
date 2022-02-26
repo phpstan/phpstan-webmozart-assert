@@ -48,6 +48,7 @@ This extension specifies types of values passed to:
 * `Assert::isInstanceOfAny`
 * `Assert::notInstanceOf`
 * `Assert::isAOf`
+* `Assert::isAnyOf`
 * `Assert::subclassOf`
 * `Assert::true`
 * `Assert::false`
