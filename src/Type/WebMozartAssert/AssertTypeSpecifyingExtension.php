@@ -304,6 +304,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						[$value]
 					);
 				},
+				'isTraversable' => static function (Scope $scope, Arg $value): Expr {
+					return self::$resolvers['isIterable']($scope, $value);
+				},
 				'isIterable' => static function (Scope $scope, Arg $expr): Expr {
 					return new BooleanOr(
 						new FuncCall(

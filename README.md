@@ -42,6 +42,7 @@ This extension specifies types of values passed to:
 * `Assert::resource`
 * `Assert::isCallable`
 * `Assert::isArray`
+* `Assert::isTraversable` (deprecated, use `isIterable` or `isInstanceOf` instead)
 * `Assert::isIterable`
 * `Assert::isCountable`
 * `Assert::isInstanceOf`
