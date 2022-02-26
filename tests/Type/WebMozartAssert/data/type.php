@@ -141,6 +141,15 @@ class TypeTest
 		\PHPStan\Testing\assertType('array|null', $b);
 	}
 
+	public function isTraversable($a, $b): void
+	{
+		Assert::isTraversable($a);
+		\PHPStan\Testing\assertType('array|Traversable', $a);
+
+		Assert::nullOrIsTraversable($b);
+		\PHPStan\Testing\assertType('array|Traversable|null', $b);
+	}
+
 	public function isIterable($a, $b): void
 	{
 		Assert::isIterable($a);
