@@ -20,4 +20,4 @@ cs-fix:
 
 .PHONY: phpstan
 phpstan:
-	php vendor/bin/phpstan analyse -l 8 -c phpstan.neon src tests
+	php vendor/bin/phpstan analyse -l 9 -c phpstan.neon src tests
