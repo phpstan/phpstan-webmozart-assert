@@ -392,19 +392,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					);
 				},
 				'isInstanceOfAny' => static function (Scope $scope, Arg $expr, Arg $classes): ?Expr {
-					if (!$classes->value instanceof Array_ || $classes->value->items === null) {
-						return null;
-					}
-
-					$resolvers = array_map(
-						static function (?ArrayItem $class) use ($scope, $expr) {
-							return $class !== null ? self::$resolvers['isInstanceOf']($scope, $expr, new Arg($class->value)) : null;
-						},
-						$classes->value->items
-					);
-					$resolvers = array_filter($resolvers);
-
-					return self::implodeExpr($resolvers, BooleanOr::class);
+					return self::buildAnyOfExpr($scope, $expr, $classes, self::$resolvers['isInstanceOf']);
 				},
 				'notInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$expr = self::$resolvers['isInstanceOf']($scope, $expr, $class);
@@ -422,6 +410,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						new Name('is_a'),
 						[$expr, $class, new Arg(new ConstFetch(new Name($allowString ? 'true' : 'false')))]
 					);
+				},
+				'isAnyOf' => static function (Scope $scope, Arg $value, Arg $classes): ?Expr {
+					return self::buildAnyOfExpr($scope, $value, $classes, self::$resolvers['isAOf']);
 				},
 				'implementsInterface' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
@@ -816,6 +807,23 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			},
 			$firstExpression
 		);
+	}
+
+	private static function buildAnyOfExpr(Scope $scope, Arg $value, Arg $items, callable $resolver): ?Expr
+	{
+		if (!$items->value instanceof Array_ || $items->value->items === null) {
+			return null;
+		}
+
+		$resolvers = array_map(
+			static function (?ArrayItem $item) use ($scope, $value, $resolver) {
+				return $item !== null ? $resolver($scope, $value, new Arg($item->value)) : null;
+			},
+			$items->value->items
+		);
+		$resolvers = array_filter($resolvers);
+
+		return self::implodeExpr($resolvers, BooleanOr::class);
 	}
 
 }

@@ -2,6 +2,7 @@
 
 namespace PHPStan\Type\WebMozartAssert;
 
+use DateTimeImmutable;
 use stdClass;
 use Webmozart\Assert\Assert;
 
@@ -231,6 +232,21 @@ class TypeTest
 
 		Assert::isAOf($c, stdClass::class);
 		\PHPStan\Testing\assertType('class-string<stdClass>', $c);
+	}
+
+	public function isAnyOf($a, $b): void
+	{
+		Assert::isAnyOf($a, [DateTimeImmutable::class, stdClass::class]);
+		\PHPStan\Testing\assertTyp0e('DateTimeImmutable|stdClass', $a);
+
+		Assert::isAnyOf($b, []);
+		\PHPStan\Testing\assertType('mixed', $b);
+
+		Assert::isAnyOf(Foo::class, [stdClass::class, Bar::class]);
+		\PHPStan\Testing\assertType('*NEVER*', Foo::class);
+
+		Assert::isAnyOf(Bar::class, [stdClass::class, Foo::class]);
+		\PHPStan\Testing\assertType('\'PHPStan\\\Type\\\WebMozartAssert\\\Bar\'', Bar::class);
 	}
 
 	public function isArrayAccessible($a, $b): void
