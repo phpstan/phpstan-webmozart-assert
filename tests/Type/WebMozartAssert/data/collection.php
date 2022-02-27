@@ -79,8 +79,7 @@ class CollectionTest
 	public function allSubclassOf(array $a, $b): void
 	{
 		Assert::allSubclassOf($a, self::class);
-		// should array<PHPStan\Type\WebMozartAssert\CollectionTest>
-		\PHPStan\Testing\assertType('array<*NEVER*>', $a);
+		\PHPStan\Testing\assertType('array<class-string<PHPStan\Type\WebMozartAssert\CollectionTest>|PHPStan\Type\WebMozartAssert\CollectionTest>', $a);
 
 		Assert::allSubclassOf($b, self::class);
 		\PHPStan\Testing\assertType('iterable<class-string<PHPStan\Type\WebMozartAssert\CollectionTest>|PHPStan\Type\WebMozartAssert\CollectionTest>', $b);
