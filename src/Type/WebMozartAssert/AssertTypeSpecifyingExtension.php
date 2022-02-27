@@ -417,6 +417,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				'isAnyOf' => static function (Scope $scope, Arg $value, Arg $classes): ?Expr {
 					return self::buildAnyOfExpr($scope, $value, $classes, self::$resolvers['isAOf']);
 				},
+				'isNotA' => static function (Scope $scope, Arg $value, Arg $class): Expr {
+					return new BooleanNot(self::$resolvers['isAOf']($scope, $value, $class));
+				},
 				'implementsInterface' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
 					if (!$classType instanceof ConstantStringType) {
