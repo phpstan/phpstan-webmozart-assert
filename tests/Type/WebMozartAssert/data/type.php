@@ -258,6 +258,29 @@ class TypeTest
 		\PHPStan\Testing\assertType('\'PHPStan\\\Type\\\WebMozartAssert\\\Bar\'', Bar::class);
 	}
 
+	/**
+	 * @param DateTimeImmutable|stdClass $a
+	 * @param class-string<DateTimeImmutable>|class-string<stdClass> $b
+	 * @param DateTimeImmutable|stdClass|null $c
+	 */
+	public function isNotA(object $a, string $b, ?object $c): void
+	{
+		Assert::isNotA($a, stdClass::class);
+		\PHPStan\Testing\assertType('DateTimeImmutable', $a);
+
+		Assert::isNotA($b, stdClass::class);
+		\PHPStan\Testing\assertType('class-string<DateTimeImmutable>', $b);
+
+		Assert::nullOrIsNotA($c, stdClass::class);
+		\PHPStan\Testing\assertType('DateTimeImmutable|null', $c);
+
+		Assert::isNotA(Foo::class, stdClass::class);
+		\PHPStan\Testing\assertType('\'PHPStan\\\Type\\\WebMozartAssert\\\Foo\'', Foo::class);
+
+		Assert::isNotA(Bar::class, stdClass::class);
+		\PHPStan\Testing\assertType('*NEVER*', Bar::class);
+	}
+
 	public function isArrayAccessible($a, $b): void
 	{
 		Assert::isArrayAccessible($a);
