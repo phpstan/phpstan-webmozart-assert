@@ -40,6 +40,7 @@ use PHPStan\Type\ArrayType;
 use PHPStan\Type\Constant\ConstantArrayType;
 use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
 use PHPStan\Type\Constant\ConstantStringType;
+use PHPStan\Type\IntegerType;
 use PHPStan\Type\IterableType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\ObjectType;
@@ -485,31 +486,56 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						$value2->value
 					);
 				},
-				'greaterThan' => static function (Scope $scope, Arg $value, Arg $limit): Expr {
+				'greaterThan' => static function (Scope $scope, Arg $value, Arg $limit): ?Expr {
+					$valueType = $scope->getType($value->value);
+					if ((new IntegerType())->isSuperTypeOf($valueType)->no()) {
+						return null;
+					}
+
 					return new Greater(
 						$value->value,
 						$limit->value
 					);
 				},
-				'greaterThanEq' => static function (Scope $scope, Arg $value, Arg $limit): Expr {
+				'greaterThanEq' => static function (Scope $scope, Arg $value, Arg $limit): ?Expr {
+					$valueType = $scope->getType($value->value);
+					if ((new IntegerType())->isSuperTypeOf($valueType)->no()) {
+						return null;
+					}
+
 					return new GreaterOrEqual(
 						$value->value,
 						$limit->value
 					);
 				},
-				'lessThan' => static function (Scope $scope, Arg $value, Arg $limit): Expr {
+				'lessThan' => static function (Scope $scope, Arg $value, Arg $limit): ?Expr {
+					$valueType = $scope->getType($value->value);
+					if ((new IntegerType())->isSuperTypeOf($valueType)->no()) {
+						return null;
+					}
+
 					return new Smaller(
 						$value->value,
 						$limit->value
 					);
 				},
-				'lessThanEq' => static function (Scope $scope, Arg $value, Arg $limit): Expr {
+				'lessThanEq' => static function (Scope $scope, Arg $value, Arg $limit): ?Expr {
+					$valueType = $scope->getType($value->value);
+					if ((new IntegerType())->isSuperTypeOf($valueType)->no()) {
+						return null;
+					}
+
 					return new SmallerOrEqual(
 						$value->value,
 						$limit->value
 					);
 				},
-				'range' => static function (Scope $scope, Arg $value, Arg $min, Arg $max): Expr {
+				'range' => static function (Scope $scope, Arg $value, Arg $min, Arg $max): ?Expr {
+					$valueType = $scope->getType($value->value);
+					if ((new IntegerType())->isSuperTypeOf($valueType)->no()) {
+						return null;
+					}
+
 					return new BooleanAnd(
 						new GreaterOrEqual(
 							$value->value,
