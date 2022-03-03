@@ -12,6 +12,7 @@ use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
+use PhpParser\Node\Expr\BinaryOp\Equal;
 use PhpParser\Node\Expr\BinaryOp\Greater;
 use PhpParser\Node\Expr\BinaryOp\GreaterOrEqual;
 use PhpParser\Node\Expr\BinaryOp\Identical;
@@ -19,6 +20,7 @@ use PhpParser\Node\Expr\BinaryOp\NotIdentical;
 use PhpParser\Node\Expr\BinaryOp\Smaller;
 use PhpParser\Node\Expr\BinaryOp\SmallerOrEqual;
 use PhpParser\Node\Expr\BooleanNot;
+use PhpParser\Node\Expr\Cast\Int_;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Instanceof_;
@@ -236,9 +238,17 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					);
 				},
 				'integerish' => static function (Scope $scope, Arg $value): Expr {
-					return new FuncCall(
-						new Name('is_numeric'),
-						[$value]
+					return new BooleanAnd(
+						new FuncCall(
+							new Name('is_numeric'),
+							[$value]
+						),
+						new Equal(
+							$value->value,
+							new Int_(
+								$value->value
+							)
+						)
 					);
 				},
 				'numeric' => static function (Scope $scope, Arg $value): Expr {

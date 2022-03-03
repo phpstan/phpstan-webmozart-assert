@@ -35,13 +35,28 @@ class TypeTest
 		\PHPStan\Testing\assertType('int|null', $b);
 	}
 
-	public function integerish($a, $b): void
+	/**
+	 * @param numeric-string $e
+	 */
+	public function integerish($a, $b, int $c, float $d, string $e, string $f): void
 	{
 		Assert::integerish($a);
 		\PHPStan\Testing\assertType('float|int|numeric-string', $a);
 
 		Assert::nullOrIntegerish($b);
 		\PHPStan\Testing\assertType('float|int|numeric-string|null', $b);
+
+		Assert::integerish($c);
+		\PHPStan\Testing\assertType('int', $c);
+
+		Assert::integerish($d);
+		\PHPStan\Testing\assertType('float', $d);
+
+		Assert::integerish($e);
+		\PHPStan\Testing\assertType('numeric-string', $e);
+
+		Assert::integerish($f);
+		\PHPStan\Testing\assertType('numeric-string', $f);
 	}
 
 	public function positiveInteger($a, $b, $c): void
