@@ -32,8 +32,23 @@ class Foo
 		Assert::notInstanceOf($a, Bar::class);
 	}
 
+	public function notSame(Bar $a, Bar $b): void
+	{
+		Assert::notSame($a, $b);
+		Assert::notSame(new Baz(), new Baz());
+		Assert::notSame(Baz::create(), Baz::create());
+	}
+
 }
 
 interface Bar {};
 
-class Baz {}
+class Baz
+{
+
+	public static function create(): self
+	{
+		return new self();
+	}
+
+}
