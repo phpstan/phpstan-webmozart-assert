@@ -44,6 +44,22 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::notInstanceOf() with WebmozartAssertImpossibleCheck\Bar and \'WebmozartAssertImpossibleCheck\\\Bar\' will always evaluate to false.',
 				32,
 			],
+			[
+				'Call to static method Webmozart\Assert\Assert::stringNotEmpty() with non-empty-string will always evaluate to true.',
+				44,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::stringNotEmpty() with non-empty-string will always evaluate to true.',
+				46,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::nullOrStringNotEmpty() with non-empty-string will always evaluate to true.',
+				49,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::nullOrStringNotEmpty() with non-empty-string|null will always evaluate to true.',
+				53,
+			],
 		]);
 	}
 

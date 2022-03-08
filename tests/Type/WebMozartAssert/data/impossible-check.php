@@ -32,6 +32,27 @@ class Foo
 		Assert::notInstanceOf($a, Bar::class);
 	}
 
+	/**
+	 * @param non-empty-string $b
+	 * @param non-empty-string|null $e
+	 */
+	public function stringNotEmpty(string $a, string $b, string $c, ?string $d, ?string $e): void
+	{
+		Assert::stringNotEmpty(null); // maybe this should report, similar as '' does too
+
+		Assert::stringNotEmpty($a);
+		Assert::stringNotEmpty($a);
+
+		Assert::stringNotEmpty($b);
+
+		Assert::nullOrStringNotEmpty($c);
+		Assert::nullOrStringNotEmpty($c);
+
+		Assert::nullOrStringNotEmpty($d);
+
+		Assert::nullOrStringNotEmpty($e);
+	}
+
 }
 
 interface Bar {};
