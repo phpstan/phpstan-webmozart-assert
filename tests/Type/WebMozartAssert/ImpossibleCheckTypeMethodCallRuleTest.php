@@ -75,16 +75,68 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				12,
 			],
 			[
-				'Call to static method Webmozart\Assert\Assert::eq() with stdClass and stdClass will always evaluate to true.',
-				30,
+				'Call to static method Webmozart\Assert\Assert::eq() with 1 and \'1\' will always evaluate to true.',
+				34,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and \'1\' will always evaluate to false.',
+				35,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with 1 and true will always evaluate to true.',
+				36,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and true will always evaluate to false.',
+				37,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with \'php\' and true will always evaluate to true.',
+				38,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with \'php\' and true will always evaluate to false.',
+				39,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with \'\' and false will always evaluate to true.',
+				40,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with \'\' and false will always evaluate to false.',
+				41,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with 1 and 1 will always evaluate to true.',
+				43,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and 1 will always evaluate to false.',
+				44,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with true and true will always evaluate to true.',
+				45,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with true and true will always evaluate to false.',
+				46,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with \'php\' and \'php\' will always evaluate to true.',
+				47,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with \'php\' and \'php\' will always evaluate to false.',
+				48,
 			],
 			[
 				'Call to static method Webmozart\Assert\Assert::eq() with stdClass and null will always evaluate to false.',
-				33,
+				58,
 			],
 			[
 				'Call to static method Webmozart\Assert\Assert::notEq() with stdClass and null will always evaluate to true.',
-				34,
+				59,
 			],
 		]);
 	}
