@@ -23,11 +23,12 @@ function instancesOfTheSameTypeAreNotIdenticalButCouldBeEqual(stdClass $a, stdCl
 
 function instancesOfDifferentTypesAreNeverEqual(stdClass $a, DateTimeInterface $b, stdClass $c, DateTimeInterface $d, stdClass $e, stdClass $f, stdClass $g, stdClass $h): void
 {
-	Assert::eq($a, $b); // ignored, should evaluate to false?
-	Assert::notEq($c, $d); // ignored, should evaluate to true?
+	// These don't report anything as PHPStan doesn't currently support loose comparison with ==
+	Assert::eq($a, $b);
+	Assert::notEq($c, $d);
 
-	Assert::eq($e, new stdClass()); // will always evaluate to true, should evaluate to false?
-	Assert::notEq($f, new stdClass()); // ignored, should evaluate to true?
+	Assert::eq($e, new stdClass()); // will always evaluate to true, should not report anything
+	Assert::notEq($f, new stdClass());
 
 	Assert::eq($g, null); // will always evaluate to false
 	Assert::notEq($h, null); // will always evaluate to true
