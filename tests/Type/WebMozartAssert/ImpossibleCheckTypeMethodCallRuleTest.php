@@ -74,14 +74,14 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::notEq() with stdClass and stdClass will always evaluate to false.',
 				12,
 			],
-			[
+			/*[
 				'Call to static method Webmozart\Assert\Assert::eq() with 1 and \'1\' will always evaluate to true.',
 				34,
 			],
 			[
 				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and \'1\' will always evaluate to false.',
 				35,
-			],
+			],*/
 			[
 				'Call to static method Webmozart\Assert\Assert::eq() with 1 and true will always evaluate to true.',
 				36,
