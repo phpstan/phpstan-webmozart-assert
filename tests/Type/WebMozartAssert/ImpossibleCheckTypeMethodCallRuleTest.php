@@ -63,6 +63,32 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 		]);
 	}
 
+	public function testEq(): void
+	{
+		$this->analyse([__DIR__ . '/data/impossible-check-eq-not-eq.php'], [
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with stdClass and stdClass will always evaluate to true.',
+				11,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with stdClass and stdClass will always evaluate to false.',
+				12,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with stdClass and stdClass will always evaluate to true.',
+				29,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with stdClass and null will always evaluate to false.',
+				32,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with stdClass and null will always evaluate to true.',
+				33,
+			],
+		]);
+	}
+
 	public function testBug8(): void
 	{
 		$this->analyse([__DIR__ . '/data/bug-8.php'], [
