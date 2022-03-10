@@ -57,6 +57,8 @@ This extension specifies types of values passed to:
 * `Assert::notFalse`
 * `Assert::null`
 * `Assert::notNull`
+* `Assert::eq`
+* `Assert::notEq`
 * `Assert::same`
 * `Assert::notSame`
 * `Assert::greaterThan`

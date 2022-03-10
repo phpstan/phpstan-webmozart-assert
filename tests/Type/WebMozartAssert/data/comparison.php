@@ -43,6 +43,39 @@ class ComparisonTest
 		\PHPStan\Testing\assertType('int', $a);
 	}
 
+	/**
+	 * @param non-empty-string  $b2
+	 */
+	public function eq(?bool $a, string $b1, string $b2, $c, ?bool $d): void
+	{
+		Assert::eq($a, null);
+		\PHPStan\Testing\assertType('false|null', $a);
+
+		Assert::eq($b1, $b2);
+		\PHPStan\Testing\assertType('non-empty-string', $b1);
+
+		Assert::eq($c, false);
+		\PHPStan\Testing\assertType('0|0.0|\'\'|\'0\'|array{}|false|null', $c);
+
+		Assert::nullOrEq($d, true);
+		\PHPStan\Testing\assertType('true|null', $d);
+	}
+
+	public function notEq(?bool $a, string $b, $c, ?bool $d): void
+	{
+		Assert::notEq($a, null);
+		\PHPStan\Testing\assertType('true', $a);
+
+		Assert::notEq($b, '');
+		\PHPStan\Testing\assertType('non-empty-string', $b);
+
+		Assert::notEq($c, true);
+		\PHPStan\Testing\assertType('0|0.0|\'\'|\'0\'|array{}|false|null', $c);
+
+		Assert::nullOrNotEq($d, true);
+		\PHPStan\Testing\assertType('false|null', $d);
+	}
+
 	public function same($a, $b): void
 	{
 		Assert::same($a, 1);

@@ -483,6 +483,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						new ConstFetch(new Name('null'))
 					);
 				},
+				'eq' => static function (Scope $scope, Arg $value, Arg $value2): Expr {
+					return new Equal(
+						$value->value,
+						$value2->value
+					);
+				},
+				'notEq' => static function (Scope $scope, Arg $value, Arg $value2): Expr {
+					return new BooleanNot(self::$resolvers['eq']($scope, $value, $value2));
+				},
 				'same' => static function (Scope $scope, Arg $value1, Arg $value2): Expr {
 					return new Identical(
 						$value1->value,
