@@ -68,75 +68,75 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/impossible-check-eq-not-eq.php'], [
 			[
 				'Call to static method Webmozart\Assert\Assert::eq() with stdClass and stdClass will always evaluate to true.',
-				11,
+				14,
 			],
 			[
 				'Call to static method Webmozart\Assert\Assert::notEq() with stdClass and stdClass will always evaluate to false.',
-				12,
+				15,
 			],
 			/*[
 				'Call to static method Webmozart\Assert\Assert::eq() with 1 and \'1\' will always evaluate to true.',
-				34,
-			],
-			[
-				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and \'1\' will always evaluate to false.',
-				35,
-			],*/
-			[
-				'Call to static method Webmozart\Assert\Assert::eq() with 1 and true will always evaluate to true.',
-				36,
-			],
-			[
-				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and true will always evaluate to false.',
 				37,
 			],
 			[
-				'Call to static method Webmozart\Assert\Assert::eq() with \'php\' and true will always evaluate to true.',
+				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and \'1\' will always evaluate to false.',
 				38,
-			],
+			],*/
 			[
-				'Call to static method Webmozart\Assert\Assert::notEq() with \'php\' and true will always evaluate to false.',
+				'Call to static method Webmozart\Assert\Assert::eq() with 1 and true will always evaluate to true.',
 				39,
 			],
 			[
-				'Call to static method Webmozart\Assert\Assert::eq() with \'\' and false will always evaluate to true.',
+				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and true will always evaluate to false.',
 				40,
 			],
 			[
-				'Call to static method Webmozart\Assert\Assert::notEq() with \'\' and false will always evaluate to false.',
+				'Call to static method Webmozart\Assert\Assert::eq() with \'php\' and true will always evaluate to true.',
 				41,
 			],
 			[
-				'Call to static method Webmozart\Assert\Assert::eq() with 1 and 1 will always evaluate to true.',
+				'Call to static method Webmozart\Assert\Assert::notEq() with \'php\' and true will always evaluate to false.',
+				42,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with \'\' and false will always evaluate to true.',
 				43,
 			],
 			[
-				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and 1 will always evaluate to false.',
+				'Call to static method Webmozart\Assert\Assert::notEq() with \'\' and false will always evaluate to false.',
 				44,
 			],
 			[
-				'Call to static method Webmozart\Assert\Assert::eq() with true and true will always evaluate to true.',
-				45,
-			],
-			[
-				'Call to static method Webmozart\Assert\Assert::notEq() with true and true will always evaluate to false.',
+				'Call to static method Webmozart\Assert\Assert::eq() with 1 and 1 will always evaluate to true.',
 				46,
 			],
 			[
-				'Call to static method Webmozart\Assert\Assert::eq() with \'php\' and \'php\' will always evaluate to true.',
+				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and 1 will always evaluate to false.',
 				47,
 			],
 			[
-				'Call to static method Webmozart\Assert\Assert::notEq() with \'php\' and \'php\' will always evaluate to false.',
+				'Call to static method Webmozart\Assert\Assert::eq() with true and true will always evaluate to true.',
 				48,
 			],
 			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with true and true will always evaluate to false.',
+				49,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::eq() with \'php\' and \'php\' will always evaluate to true.',
+				50,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::notEq() with \'php\' and \'php\' will always evaluate to false.',
+				51,
+			],
+			[
 				'Call to static method Webmozart\Assert\Assert::eq() with stdClass and null will always evaluate to false.',
-				58,
+				61,
 			],
 			[
 				'Call to static method Webmozart\Assert\Assert::notEq() with stdClass and null will always evaluate to true.',
-				59,
+				62,
 			],
 		]);
 	}
