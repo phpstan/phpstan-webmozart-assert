@@ -792,8 +792,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			TypeSpecifierContext::createTruthy()
 		);
 
-		$typeBefore = $scope->getType($node->getArgs()[0]->value);
-		$type = $this->determineVariableTypeFromSpecifiedTypes($typeBefore, $specifiedTypes);
+		$type = $this->determineVariableTypeFromSpecifiedTypes($scope, $specifiedTypes);
 
 		return $this->arrayOrIterable(
 			$scope,
@@ -829,8 +828,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			TypeSpecifierContext::createTruthy()
 		);
 
-		$typeBefore = $scope->getType($node->getArgs()[0]->value);
-		$type = $this->determineVariableTypeFromSpecifiedTypes($typeBefore, $specifiedTypes);
+		$type = $this->determineVariableTypeFromSpecifiedTypes($scope, $specifiedTypes);
 
 		return $this->typeSpecifier->create($node->getArgs()[0]->value, TypeCombinator::addNull($type), TypeSpecifierContext::createTruthy(), false, $scope);
 	}
@@ -872,11 +870,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		);
 	}
 
-	private function determineVariableTypeFromSpecifiedTypes(Type $typeBefore, SpecifiedTypes $specifiedTypes): Type
+	private function determineVariableTypeFromSpecifiedTypes(Scope $scope, SpecifiedTypes $specifiedTypes): Type
 	{
-		if (count($specifiedTypes->getSureTypes()) > 0) {
-			$sureTypes = $specifiedTypes->getSureTypes();
-			$sureNotTypes = $specifiedTypes->getSureNotTypes();
+		$sureTypes = $specifiedTypes->getSureTypes();
+		$sureNotTypes = $specifiedTypes->getSureNotTypes();
+
+		if (count($sureTypes) > 0) {
 			$exprString = key($sureTypes);
 			[, $type] = $sureTypes[$exprString];
 
@@ -887,12 +886,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			return $type;
 		}
 
-		if (count($specifiedTypes->getSureNotTypes()) > 0) {
+		if (count($sureNotTypes) > 0) {
 			$sureNotTypes = $specifiedTypes->getSureNotTypes();
 			$exprString = key($sureNotTypes);
-			[, $type] = $sureNotTypes[$exprString];
+			[$exprNode, $type] = $sureNotTypes[$exprString];
 
-			return TypeCombinator::remove($typeBefore, $type);
+			return TypeCombinator::remove($scope->getType($exprNode), $type);
 		}
 
 		throw new ShouldNotHappenException();
