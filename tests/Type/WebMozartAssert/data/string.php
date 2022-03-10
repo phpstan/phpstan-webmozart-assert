@@ -73,4 +73,39 @@ class TestStrings
 		\PHPStan\Testing\assertType('non-empty-string|null', $f);
 	}
 
+	public function uuid(string $a): void
+	{
+		Assert::uuid($a);
+		\PHPStan\Testing\assertType('non-empty-string', $a);
+	}
+
+	public function ip(string $a): void
+	{
+		Assert::ip($a);
+		\PHPStan\Testing\assertType('non-empty-string', $a);
+	}
+
+	public function ipv4(string $a): void
+	{
+		Assert::ipv4($a);
+		\PHPStan\Testing\assertType('non-empty-string', $a);
+	}
+
+	public function ipv6(string $a): void
+	{
+		Assert::ipv6($a);
+		\PHPStan\Testing\assertType('non-empty-string', $a);
+	}
+
+	public function email(string $a): void
+	{
+		Assert::email($a);
+		\PHPStan\Testing\assertType('non-empty-string', $a);
+	}
+
+	public function notWhitespaceOnly(string $a): void
+	{
+		Assert::notWhitespaceOnly($a);
+		\PHPStan\Testing\assertType('non-empty-string', $a);
+	}
 }

@@ -28,7 +28,7 @@ final class Bug85
 	public function baz(string $s): void
 	{
 		Assert::stringNotEmpty($s);
-		Assert::uuid($s);
+		Assert::digits($s);
 	}
 
 }

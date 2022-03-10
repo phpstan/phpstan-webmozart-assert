@@ -713,6 +713,10 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					);
 				},
 			];
+
+			foreach (['uuid', 'ip', 'ipv4', 'ipv6', 'email', 'notWhitespaceOnly'] as $key) {
+				self::$resolvers[$key] = self::$resolvers['stringNotEmpty'];
+			}
 		}
 
 		return self::$resolvers;
