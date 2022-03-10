@@ -146,6 +146,14 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			);
 		}
 
+		if (substr($staticMethodReflection->getName(), 0, 6) === 'nullOr') {
+			return $this->handleNullOr(
+				$staticMethodReflection->getName(),
+				$node,
+				$scope
+			);
+		}
+
 		$expression = self::createExpression($scope, $staticMethodReflection->getName(), $node->getArgs());
 		if ($expression === null) {
 			return new SpecifiedTypes([], []);
@@ -170,22 +178,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		$trimmedName = self::trimName($name);
 		$resolvers = self::getExpressionResolvers();
 		$resolver = $resolvers[$trimmedName];
-		$expression = $resolver($scope, ...$args);
-		if ($expression === null) {
-			return null;
-		}
-
-		if (substr($name, 0, 6) === 'nullOr') {
-			$expression = new BooleanOr(
-				$expression,
-				new Identical(
-					$args[0]->value,
-					new ConstFetch(new Name('null'))
-				)
-			);
-		}
-
-		return $expression;
+		return $resolver($scope, ...$args);
 	}
 
 	/**
@@ -799,24 +792,53 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			TypeSpecifierContext::createTruthy()
 		);
 
-		if (count($specifiedTypes->getSureTypes()) > 0) {
-			$sureTypes = $specifiedTypes->getSureTypes();
-			$exprString = key($sureTypes);
-			[$exprNode, $type] = $sureTypes[$exprString];
-
-			return $this->arrayOrIterable(
-				$scope,
-				$exprNode,
-				static function () use ($type): Type {
-					return $type->getIterableValueType();
-				}
-			);
-		}
-		if (count($specifiedTypes->getSureNotTypes()) > 0) {
-			throw new ShouldNotHappenException();
+		$typeBefore = $scope->getType($node->getArgs()[0]->value);
+		$type = $this->determineVariableTypeFromSpecifiedTypes($typeBefore, $specifiedTypes);
+		if ($type === null) {
+			return new SpecifiedTypes();
 		}
 
-		return $specifiedTypes;
+		return $this->arrayOrIterable(
+			$scope,
+			$node->getArgs()[0]->value,
+			static function () use ($type): Type {
+				return $type->getIterableValueType();
+			}
+		);
+	}
+
+	private function handleNullOr(
+		string $methodName,
+		StaticCall $node,
+		Scope $scope
+	): SpecifiedTypes
+	{
+		$innerExpression = self::createExpression($scope, $methodName, $node->getArgs());
+		if ($innerExpression === null) {
+			return new SpecifiedTypes();
+		}
+
+		$expression = new BooleanAnd(
+			new NotIdentical(
+				$node->getArgs()[0]->value,
+				new ConstFetch(new Name('null'))
+			),
+			$innerExpression
+		);
+
+		$specifiedTypes = $this->typeSpecifier->specifyTypesInCondition(
+			$scope,
+			$expression,
+			TypeSpecifierContext::createTruthy()
+		);
+
+		$typeBefore = $scope->getType($node->getArgs()[0]->value);
+		$type = $this->determineVariableTypeFromSpecifiedTypes($typeBefore, $specifiedTypes);
+		if ($type === null) {
+			return new SpecifiedTypes();
+		}
+
+		return $this->typeSpecifier->create($node->getArgs()[0]->value, TypeCombinator::addNull($type), TypeSpecifierContext::createTruthy(), false, $scope);
 	}
 
 	private function arrayOrIterable(
@@ -854,6 +876,32 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			$specifiedType,
 			TypeSpecifierContext::createTruthy()
 		);
+	}
+
+	private function determineVariableTypeFromSpecifiedTypes(Type $typeBefore, SpecifiedTypes $specifiedTypes): ?Type
+	{
+		if (count($specifiedTypes->getSureTypes()) > 0) {
+			$sureTypes = $specifiedTypes->getSureTypes();
+			$sureNotTypes = $specifiedTypes->getSureNotTypes();
+			$exprString = key($sureTypes);
+			[, $type] = $sureTypes[$exprString];
+
+			if (array_key_exists($exprString, $sureNotTypes)) {
+				$type = TypeCombinator::remove($type, $sureNotTypes[$exprString][1]);
+			}
+
+			return $type;
+		}
+
+		if (count($specifiedTypes->getSureNotTypes()) > 0) {
+			$sureNotTypes = $specifiedTypes->getSureNotTypes();
+			$exprString = key($sureNotTypes);
+			[, $type] = $sureNotTypes[$exprString];
+
+			return TypeCombinator::remove($typeBefore, $type);
+		}
+
+		return null;
 	}
 
 	/**
