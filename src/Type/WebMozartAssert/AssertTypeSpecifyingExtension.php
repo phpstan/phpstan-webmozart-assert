@@ -794,9 +794,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 		$typeBefore = $scope->getType($node->getArgs()[0]->value);
 		$type = $this->determineVariableTypeFromSpecifiedTypes($typeBefore, $specifiedTypes);
-		if ($type === null) {
-			return new SpecifiedTypes();
-		}
 
 		return $this->arrayOrIterable(
 			$scope,
@@ -834,9 +831,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 		$typeBefore = $scope->getType($node->getArgs()[0]->value);
 		$type = $this->determineVariableTypeFromSpecifiedTypes($typeBefore, $specifiedTypes);
-		if ($type === null) {
-			return new SpecifiedTypes();
-		}
 
 		return $this->typeSpecifier->create($node->getArgs()[0]->value, TypeCombinator::addNull($type), TypeSpecifierContext::createTruthy(), false, $scope);
 	}
@@ -878,7 +872,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		);
 	}
 
-	private function determineVariableTypeFromSpecifiedTypes(Type $typeBefore, SpecifiedTypes $specifiedTypes): ?Type
+	private function determineVariableTypeFromSpecifiedTypes(Type $typeBefore, SpecifiedTypes $specifiedTypes): Type
 	{
 		if (count($specifiedTypes->getSureTypes()) > 0) {
 			$sureTypes = $specifiedTypes->getSureTypes();
@@ -901,7 +895,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			return TypeCombinator::remove($typeBefore, $type);
 		}
 
-		return null;
+		throw new ShouldNotHappenException();
 	}
 
 	/**
