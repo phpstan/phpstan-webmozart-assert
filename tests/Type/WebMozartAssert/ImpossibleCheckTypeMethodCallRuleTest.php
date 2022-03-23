@@ -179,6 +179,21 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/bug-85.php'], []);
 	}
 
+	public function testBug118(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-118.php'], []);
+	}
+
+	public function testBug119(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-119.php'], []);
+	}
+
+	public function testBug130(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-130.php'], []);
+	}
+
 	public static function getAdditionalConfigFiles(): array
 	{
 		return [
