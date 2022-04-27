@@ -57,9 +57,6 @@ class ImpossibleCheckEqNotEq
 		Assert::eq($b, self::createStdClass());
 		Assert::notEq($c, new stdClass());
 		Assert::notEq($d, self::createStdClass());
-
-		Assert::eq($e, null); // will always evaluate to false
-		Assert::notEq($f, null); // will always evaluate to true
 	}
 
 	public static function createStdClass(): stdClass

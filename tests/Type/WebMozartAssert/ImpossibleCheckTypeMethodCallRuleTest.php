@@ -45,6 +45,10 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				32,
 			],
 			[
+				'Call to static method Webmozart\Assert\Assert::stringNotEmpty() with null will always evaluate to false.',
+				41,
+			],
+			[
 				'Call to static method Webmozart\Assert\Assert::stringNotEmpty() with non-empty-string will always evaluate to true.',
 				44,
 			],
@@ -74,14 +78,14 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::notEq() with stdClass and stdClass will always evaluate to false.',
 				15,
 			],
-			/*[
+			[
 				'Call to static method Webmozart\Assert\Assert::eq() with 1 and \'1\' will always evaluate to true.',
 				37,
 			],
 			[
 				'Call to static method Webmozart\Assert\Assert::notEq() with 1 and \'1\' will always evaluate to false.',
 				38,
-			],*/
+			],
 			[
 				'Call to static method Webmozart\Assert\Assert::eq() with 1 and true will always evaluate to true.',
 				39,
@@ -129,14 +133,6 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 			[
 				'Call to static method Webmozart\Assert\Assert::notEq() with \'php\' and \'php\' will always evaluate to false.',
 				51,
-			],
-			[
-				'Call to static method Webmozart\Assert\Assert::eq() with stdClass and null will always evaluate to false.',
-				61,
-			],
-			[
-				'Call to static method Webmozart\Assert\Assert::notEq() with stdClass and null will always evaluate to true.',
-				62,
 			],
 		]);
 	}

@@ -38,7 +38,7 @@ class Foo
 	 */
 	public function stringNotEmpty(string $a, string $b, string $c, ?string $d, ?string $e): void
 	{
-		Assert::stringNotEmpty(null); // maybe this should report, similar as '' does too
+		Assert::stringNotEmpty(null);
 
 		Assert::stringNotEmpty($a);
 		Assert::stringNotEmpty($a);
