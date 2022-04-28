@@ -64,6 +64,10 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::nullOrStringNotEmpty() with non-empty-string|null will always evaluate to true.',
 				53,
 			],
+			[
+				'Call to static method Webmozart\Assert\Assert::allCount() with array<non-empty-array> and 2 will always evaluate to true.',
+				76,
+			],
 		]);
 	}
 

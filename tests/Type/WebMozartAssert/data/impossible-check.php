@@ -67,6 +67,15 @@ class Foo
 		Assert::notSame(Baz::create(), Baz::create());
 	}
 
+	/**
+	 * @param array<array> $a
+	 */
+	public function allCount(array $a): void
+	{
+		Assert::allCount($a, 2);
+		Assert::allCount($a, 2);
+	}
+
 }
 
 interface Bar {};
