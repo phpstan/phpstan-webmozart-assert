@@ -61,7 +61,7 @@ class TestStrings
 		\PHPStan\Testing\assertType('string', $b);
 
 		Assert::lengthBetween($c, 1, 0);
-		\PHPStan\Testing\assertType('non-empty-string', $c); // this looks like a bug or undefined behaviour
+		\PHPStan\Testing\assertType('*NEVER*', $c);
 
 		Assert::lengthBetween($d, 1, 1);
 		\PHPStan\Testing\assertType('non-empty-string', $d);
