@@ -3,6 +3,7 @@
 namespace PHPStan\Type\WebMozartAssert;
 
 use Webmozart\Assert\Assert;
+use function PHPStan\Testing\assertType;
 
 class ArrayTest
 {
@@ -13,7 +14,7 @@ class ArrayTest
 	public function keyNotExists(array $a): void
 	{
 		Assert::keyNotExists($a, 'bar');
-		\PHPStan\Testing\assertType('array{foo?: string}', $a);
+		assertType('array{foo?: string}', $a);
 	}
 
 	/**
@@ -22,19 +23,19 @@ class ArrayTest
 	public function keyExists(array $a): void
 	{
 		Assert::keyExists($a, 'foo');
-		\PHPStan\Testing\assertType('array{foo: string, bar?: string}', $a);
+		assertType('array{foo: string, bar?: string}', $a);
 	}
 
 	public function validArrayKey($a, bool $b, $c): void
 	{
 		Assert::validArrayKey($a);
-		\PHPStan\Testing\assertType('int|string', $a);
+		assertType('int|string', $a);
 
 		Assert::validArrayKey($b);
-		\PHPStan\Testing\assertType('*NEVER*', $b);
+		assertType('*NEVER*', $b);
 
 		Assert::nullOrValidArrayKey($c);
-		\PHPStan\Testing\assertType('int|string|null', $c);
+		assertType('int|string|null', $c);
 	}
 
 	/**
@@ -44,10 +45,10 @@ class ArrayTest
 	public function count(array $a, array $b): void
 	{
 		Assert::count($a, 1);
-		\PHPStan\Testing\assertType('non-empty-array<int>', $a);
+		assertType('non-empty-array<int>', $a);
 
 		Assert::count($b, 0);
-		\PHPStan\Testing\assertType('array{}', $b);
+		assertType('array{}', $b);
 	}
 
 	/**
@@ -57,10 +58,10 @@ class ArrayTest
 	public function minCount(array $a, array $b): void
 	{
 		Assert::minCount($a, 1);
-		\PHPStan\Testing\assertType('non-empty-array<int>', $a);
+		assertType('non-empty-array<int>', $a);
 
 		Assert::minCount($b, 0);
-		\PHPStan\Testing\assertType('array<int>', $b);
+		assertType('array<int>', $b);
 	}
 
 	/**
@@ -70,10 +71,10 @@ class ArrayTest
 	public function maxCount(array $a, array $b): void
 	{
 		Assert::maxCount($a, 1);
-		\PHPStan\Testing\assertType('array<int>', $a);
+		assertType('array<int>', $a);
 
 		Assert::maxCount($b, 0);
-		\PHPStan\Testing\assertType('array{}', $b);
+		assertType('array{}', $b);
 	}
 
 	/**
@@ -85,52 +86,52 @@ class ArrayTest
 	public function countBetween(array $a, array $b, array $c, array $d): void
 	{
 		Assert::countBetween($a, 1, 2);
-		\PHPStan\Testing\assertType('non-empty-array<int>', $a);
+		assertType('non-empty-array<int>', $a);
 
 		Assert::countBetween($b, 0, 2);
-		\PHPStan\Testing\assertType('array<int>', $b);
+		assertType('array<int>', $b);
 
 		Assert::countBetween($c, 0, 0);
-		\PHPStan\Testing\assertType('array{}', $c);
+		assertType('array{}', $c);
 
 		Assert::countBetween($d, 2, 0);
-		\PHPStan\Testing\assertType('*NEVER*', $d);
+		assertType('*NEVER*', $d);
 	}
 
 	public function isList($a, $b): void
 	{
 		Assert::isList($a);
-		\PHPStan\Testing\assertType('array<int, mixed>', $a);
+		assertType('array<int, mixed>', $a);
 
 		Assert::nullOrIsList($b);
-		\PHPStan\Testing\assertType('array<int, mixed>|null', $b);
+		assertType('array<int, mixed>|null', $b);
 	}
 
 	public function isNonEmptyList($a, $b): void
 	{
 		Assert::isNonEmptyList($a);
-		\PHPStan\Testing\assertType('non-empty-array<int, mixed>', $a);
+		assertType('non-empty-array<int, mixed>', $a);
 
 		Assert::nullOrIsNonEmptyList($b);
-		\PHPStan\Testing\assertType('non-empty-array<int, mixed>|null', $b);
+		assertType('non-empty-array<int, mixed>|null', $b);
 	}
 
 	public function isMap($a, $b): void
 	{
 		Assert::isMap($a);
-		\PHPStan\Testing\assertType('array<string, mixed>', $a);
+		assertType('array<string, mixed>', $a);
 
 		Assert::nullOrIsMap($b);
-		\PHPStan\Testing\assertType('array<string, mixed>|null', $b);
+		assertType('array<string, mixed>|null', $b);
 	}
 
 	public function isNonEmptyMap($a, $b): void
 	{
 		Assert::isNonEmptyMap($a);
-		\PHPStan\Testing\assertType('non-empty-array<string, mixed>', $a);
+		assertType('non-empty-array<string, mixed>', $a);
 
 		Assert::nullOrIsNonEmptyMap($b);
-		\PHPStan\Testing\assertType('non-empty-array<string, mixed>|null', $b);
+		assertType('non-empty-array<string, mixed>|null', $b);
 	}
 
 }
