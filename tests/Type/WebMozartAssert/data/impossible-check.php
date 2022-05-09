@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace WebmozartAssertImpossibleCheck;
 
@@ -78,7 +78,10 @@ class Foo
 
 }
 
-interface Bar {};
+interface Bar
+{
+
+}
 
 class Baz
 {

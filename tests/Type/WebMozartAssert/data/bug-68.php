@@ -1,12 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace WebmozartAssertBug68;
 
 use Webmozart\Assert\Assert;
+use function explode;
 
-$encryptedValue = "some value";
+$encryptedValue = 'some value';
 $valueParts = explode(':', $encryptedValue);
 
 Assert::count(

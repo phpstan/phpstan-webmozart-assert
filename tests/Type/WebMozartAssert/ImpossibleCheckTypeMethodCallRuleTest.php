@@ -146,15 +146,15 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 		$this->analyse([__DIR__ . '/data/bug-8.php'], [
 			[
 				'Call to static method Webmozart\Assert\Assert::numeric() with numeric-string will always evaluate to true.',
-				15,
+				13,
 			],
 			[
 				'Call to static method Webmozart\Assert\Assert::numeric() with \'foo\' will always evaluate to false.',
-				16,
+				14,
 			],
 			[
 				'Call to static method Webmozart\Assert\Assert::numeric() with \'17.19\' will always evaluate to true.',
-				17,
+				15,
 			],
 		]);
 	}

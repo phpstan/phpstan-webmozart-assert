@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types = 1);
 
 namespace WebmozartAssertBug130;
 
@@ -6,6 +6,7 @@ use Webmozart\Assert\Assert;
 
 class Bug130
 {
+
 	/** @var array<int, array{id: string, num_order: string}> */
 	protected $orders = [];
 
@@ -19,4 +20,5 @@ class Bug130
 
 		return $this;
 	}
+
 }
