@@ -120,6 +120,15 @@ class CollectionTest
 		\PHPStan\Testing\assertType('array<array&hasOffset(\'id\')>', $c);
 	}
 
+	/**
+	 * @param array<array> $a
+	 */
+	public function allCount(array $a): void
+	{
+		Assert::allCount($a, 2);
+		\PHPStan\Testing\assertType('array<non-empty-array>', $a);
+	}
+
 }
 
 class CollectionFoo

@@ -8,6 +8,7 @@ use Countable;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrayDimFetch;
 use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
@@ -25,12 +26,9 @@ use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Instanceof_;
 use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Name;
-use PhpParser\Node\Param;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\String_;
-use PhpParser\Node\Stmt\Return_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Analyser\SpecifiedTypes;
 use PHPStan\Analyser\TypeSpecifier;
@@ -44,6 +42,7 @@ use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
 use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\IterableType;
 use PHPStan\Type\MixedType;
+use PHPStan\Type\NeverType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 use PHPStan\Type\StringType;
@@ -59,7 +58,6 @@ use function array_map;
 use function array_reduce;
 use function array_shift;
 use function count;
-use function key;
 use function lcfirst;
 use function substr;
 
@@ -774,33 +772,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		Scope $scope
 	): SpecifiedTypes
 	{
-		$closureItemVariable = new Variable('item');
-		$closureArgs = $node->getArgs();
-		$closureArgs[0] = new Arg($closureItemVariable);
-
-		$expression = new BooleanAnd(
-			new FuncCall(new Name('is_iterable'), [$node->getArgs()[0]]),
-			new Identical(
-				$node->getArgs()[0]->value,
-				new FuncCall(
-					new Name('array_filter'),
-					[
-						new Arg($node->getArgs()[0]->value),
-						new Arg(
-							new Expr\Closure(
-								[
-									'static' => true,
-									'params' => [new Param($closureItemVariable)],
-									'stmts' => [
-										new Return_(self::createExpression($scope, $methodName, $closureArgs)),
-									],
-								]
-							)
-						),
-					]
-				)
-			)
-		);
+		$args = $node->getArgs();
+		$args[0] = new Arg(new ArrayDimFetch($args[0]->value, new LNumber(0)));
+		$expression = self::createExpression($scope, $methodName, $args);
+		if ($expression === null) {
+			return new SpecifiedTypes();
+		}
 
 		$specifiedTypes = $this->typeSpecifier->specifyTypesInCondition(
 			$scope,
@@ -808,21 +785,21 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			TypeSpecifierContext::createTruthy()
 		);
 
-		if (count($specifiedTypes->getSureTypes()) > 0) {
-			$sureTypes = $specifiedTypes->getSureTypes();
-			$exprString = key($sureTypes);
-			[$exprNode, $type] = $sureTypes[$exprString];
+		$sureNotTypes = $specifiedTypes->getSureNotTypes();
+		foreach ($specifiedTypes->getSureTypes() as $exprStr => [$exprNode, $type]) {
+			if ($exprNode !== $args[0]->value) {
+				continue;
+			}
+
+			$type = TypeCombinator::remove($type, $sureNotTypes[$exprStr][1] ?? new NeverType());
 
 			return $this->arrayOrIterable(
 				$scope,
-				$exprNode,
+				$node->getArgs()[0]->value,
 				static function () use ($type): Type {
-					return $type->getIterableValueType();
+					return $type;
 				}
 			);
-		}
-		if (count($specifiedTypes->getSureNotTypes()) > 0) {
-			throw new ShouldNotHappenException();
 		}
 
 		return $specifiedTypes;
@@ -861,7 +838,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		return $this->typeSpecifier->create(
 			$expr,
 			$specifiedType,
-			TypeSpecifierContext::createTruthy()
+			TypeSpecifierContext::createTruthy(),
+			false,
+			$scope
 		);
 	}
 

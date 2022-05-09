@@ -64,6 +64,10 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::nullOrStringNotEmpty() with non-empty-string|null will always evaluate to true.',
 				53,
 			],
+			[
+				'Call to static method Webmozart\Assert\Assert::allCount() with array<non-empty-array> and 2 will always evaluate to true.',
+				76,
+			],
 		]);
 	}
 
@@ -173,6 +177,21 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 	public function testBug85(): void
 	{
 		$this->analyse([__DIR__ . '/data/bug-85.php'], []);
+	}
+
+	public function testBug118(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-118.php'], []);
+	}
+
+	public function testBug119(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-119.php'], []);
+	}
+
+	public function testBug130(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-130.php'], []);
 	}
 
 	public static function getAdditionalConfigFiles(): array
