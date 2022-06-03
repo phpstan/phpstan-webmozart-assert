@@ -130,6 +130,18 @@ class CollectionTest
 		assertType('array<non-empty-array>', $a);
 	}
 
+	public function allNullOr(array $a, iterable $b, $c): void
+	{
+		Assert::allNullOrStringNotEmpty($a);
+		assertType('array<non-empty-string|null>', $a);
+
+		Assert::allNullOrIsInstanceOf($b, stdClass::class);
+		assertType('iterable<stdClass|null>', $b);
+
+		Assert::allNullOrScalar($c);
+		assertType('iterable<bool|float|int|string|null>', $c);
+	}
+
 }
 
 class CollectionFoo

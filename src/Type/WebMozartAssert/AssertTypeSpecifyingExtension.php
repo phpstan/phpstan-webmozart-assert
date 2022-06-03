@@ -111,10 +111,11 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 	private static function trimName(string $name): string
 	{
-		if (substr($name, 0, 6) === 'nullOr') {
+		if (substr($name, 0, 9) === 'allNullOr') {
+			$name = substr($name, 9);
+		} elseif (substr($name, 0, 6) === 'nullOr') {
 			$name = substr($name, 6);
-		}
-		if (substr($name, 0, 3) === 'all') {
+		} elseif (substr($name, 0, 3) === 'all') {
 			$name = substr($name, 3);
 		}
 
@@ -128,6 +129,17 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		TypeSpecifierContext $context
 	): SpecifiedTypes
 	{
+		if (substr($staticMethodReflection->getName(), 0, 9) === 'allNullOr') {
+			return $this->handleAll(
+				$staticMethodReflection->getName(),
+				$node,
+				$scope,
+				static function (Type $type) {
+					return TypeCombinator::addNull($type);
+				}
+			);
+		}
+
 		if (substr($staticMethodReflection->getName(), 0, 6) === 'allNot') {
 			return $this->handleAllNot(
 				$staticMethodReflection->getName(),
@@ -766,10 +778,14 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		throw new ShouldNotHappenException();
 	}
 
+	/**
+	 * @param callable(Type): Type|null $typeModifier
+	 */
 	private function handleAll(
 		string $methodName,
 		StaticCall $node,
-		Scope $scope
+		Scope $scope,
+		?callable $typeModifier = null
 	): SpecifiedTypes
 	{
 		$args = $node->getArgs();
@@ -792,6 +808,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			}
 
 			$type = TypeCombinator::remove($type, $sureNotTypes[$exprStr][1] ?? new NeverType());
+			if ($typeModifier !== null) {
+				$type = $typeModifier($type);
+			}
 
 			return $this->arrayOrIterable(
 				$scope,
