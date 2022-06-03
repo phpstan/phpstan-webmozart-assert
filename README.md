@@ -89,7 +89,7 @@ This extension specifies types of values passed to:
 * `Assert::minLength`
 * `Assert::maxLength`
 * `Assert::lengthBetween`
-* `nullOr*` and `all*` variants of the above methods
+* `nullOr*`, `all*` and `allNullOr*` variants of the above methods
 
 
 ## Installation
