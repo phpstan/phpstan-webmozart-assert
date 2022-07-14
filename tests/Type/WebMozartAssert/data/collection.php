@@ -30,6 +30,30 @@ class CollectionTest
 		assertType('iterable<non-empty-string>', $c);
 	}
 
+	public function allContains(array $a, iterable $b, $c): void
+	{
+		Assert::allContains($a, 'foo');
+		assertType('array<non-empty-string>', $a);
+
+		Assert::allContains($b, 'foo');
+		assertType('iterable<non-empty-string>', $b);
+
+		Assert::allContains($c, 'foo');
+		assertType('iterable<non-empty-string>', $c);
+	}
+
+	public function allNullOrContains(array $a, iterable $b, $c): void
+	{
+		Assert::allNullOrContains($a, 'foo');
+		assertType('array<non-empty-string|null>', $a);
+
+		Assert::allNullOrContains($b, 'foo');
+		assertType('iterable<non-empty-string|null>', $b);
+
+		Assert::allNullOrContains($c, 'foo');
+		assertType('iterable<non-empty-string|null>', $c);
+	}
+
 	public function allInteger(array $a, iterable $b, $c): void
 	{
 		Assert::allInteger($a);

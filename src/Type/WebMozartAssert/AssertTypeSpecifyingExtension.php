@@ -39,6 +39,7 @@ use PHPStan\ShouldNotHappenException;
 use PHPStan\Type\ArrayType;
 use PHPStan\Type\Constant\ConstantArrayType;
 use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
+use PHPStan\Type\Constant\ConstantBooleanType;
 use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\IterableType;
 use PHPStan\Type\MixedType;
@@ -58,6 +59,7 @@ use function array_map;
 use function array_reduce;
 use function array_shift;
 use function count;
+use function is_array;
 use function lcfirst;
 use function substr;
 
@@ -104,7 +106,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		}
 
 		$resolver = $resolvers[$trimmedName];
-		$resolverReflection = new ReflectionObject($resolver);
+		$resolverReflection = new ReflectionObject(Closure::fromCallable($resolver));
 
 		return count($node->getArgs()) >= count($resolverReflection->getMethod('__invoke')->getParameters()) - 1;
 	}
@@ -156,38 +158,50 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			);
 		}
 
-		$expression = self::createExpression($scope, $staticMethodReflection->getName(), $node->getArgs());
-		if ($expression === null) {
+		[$expr, $rootExpr] = self::createExpression($scope, $staticMethodReflection->getName(), $node->getArgs());
+		if ($expr === null) {
 			return new SpecifiedTypes([], []);
 		}
 
-		return $this->typeSpecifier->specifyTypesInCondition(
+		$specifiedTypes = $this->typeSpecifier->specifyTypesInCondition(
 			$scope,
-			$expression,
-			TypeSpecifierContext::createTruthy()
+			$expr,
+			TypeSpecifierContext::createTruthy(),
+			$rootExpr
 		);
+
+		return $this->specifyRootExprIfSet($rootExpr, $specifiedTypes);
 	}
 
 	/**
 	 * @param Arg[] $args
+	 * @return array{?Expr, ?Expr}
 	 */
 	private static function createExpression(
 		Scope $scope,
 		string $name,
 		array $args
-	): ?Expr
+	): array
 	{
 		$trimmedName = self::trimName($name);
 		$resolvers = self::getExpressionResolvers();
 		$resolver = $resolvers[$trimmedName];
-		$expression = $resolver($scope, ...$args);
-		if ($expression === null) {
-			return null;
+
+		$resolverResult = $resolver($scope, ...$args);
+		if (is_array($resolverResult)) {
+			[$expr, $rootExpr] = $resolverResult;
+		} else {
+			$expr = $resolverResult;
+			$rootExpr = null;
+		}
+
+		if ($expr === null) {
+			return [null, null];
 		}
 
 		if (substr($name, 0, 6) === 'nullOr') {
-			$expression = new BooleanOr(
-				$expression,
+			$expr = new BooleanOr(
+				$expr,
 				new Identical(
 					$args[0]->value,
 					new ConstFetch(new Name('null'))
@@ -195,11 +209,11 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			);
 		}
 
-		return $expression;
+		return [$expr, $rootExpr];
 	}
 
 	/**
-	 * @return Closure[]
+	 * @return array<string, callable(Scope, Arg...): (Expr|array{?Expr, ?Expr}|null)>
 	 */
 	private static function getExpressionResolvers(): array
 	{
@@ -723,6 +737,38 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					);
 				},
 			];
+
+			foreach (['contains', 'startsWith', 'endsWith'] as $name) {
+				self::$resolvers[$name] = static function (Scope $scope, Arg $value, Arg $subString): array {
+					if ($scope->getType($subString->value)->isNonEmptyString()->yes()) {
+						return self::createIsNonEmptyStringAndSomethingExprPair([$value, $subString]);
+					}
+
+					return [self::$resolvers['string']($scope, $value), null];
+				};
+			}
+
+			$assertionsResultingAtLeastInNonEmptyString = [
+				'startsWithLetter',
+				'unicodeLetters',
+				'alpha',
+				'digits',
+				'alnum',
+				'lower',
+				'upper',
+				'uuid',
+				'ip',
+				'ipv4',
+				'ipv6',
+				'email',
+				'notWhitespaceOnly',
+			];
+			foreach ($assertionsResultingAtLeastInNonEmptyString as $name) {
+				self::$resolvers[$name] = static function (Scope $scope, Arg $value): array {
+					return self::createIsNonEmptyStringAndSomethingExprPair([$value]);
+				};
+			}
+
 		}
 
 		return self::$resolvers;
@@ -790,15 +836,16 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	{
 		$args = $node->getArgs();
 		$args[0] = new Arg(new ArrayDimFetch($args[0]->value, new LNumber(0)));
-		$expression = self::createExpression($scope, $methodName, $args);
-		if ($expression === null) {
+		[$expr, $rootExpr] = self::createExpression($scope, $methodName, $args);
+		if ($expr === null) {
 			return new SpecifiedTypes();
 		}
 
 		$specifiedTypes = $this->typeSpecifier->specifyTypesInCondition(
 			$scope,
-			$expression,
-			TypeSpecifierContext::createTruthy()
+			$expr,
+			TypeSpecifierContext::createTruthy(),
+			$rootExpr
 		);
 
 		$sureNotTypes = $specifiedTypes->getSureNotTypes();
@@ -817,7 +864,8 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				$node->getArgs()[0]->value,
 				static function () use ($type): Type {
 					return $type;
-				}
+				},
+				$rootExpr
 			);
 		}
 
@@ -827,7 +875,8 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	private function arrayOrIterable(
 		Scope $scope,
 		Expr $expr,
-		Closure $typeCallback
+		Closure $typeCallback,
+		?Expr $rootExpr = null
 	): SpecifiedTypes
 	{
 		$currentType = TypeCombinator::intersect($scope->getType($expr), new IterableType(new MixedType(), new MixedType()));
@@ -854,13 +903,16 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			return new SpecifiedTypes([], []);
 		}
 
-		return $this->typeSpecifier->create(
+		$specifiedTypes = $this->typeSpecifier->create(
 			$expr,
 			$specifiedType,
 			TypeSpecifierContext::createTruthy(),
 			false,
-			$scope
+			$scope,
+			$rootExpr
 		);
+
+		return $this->specifyRootExprIfSet($rootExpr, $specifiedTypes);
 	}
 
 	/**
@@ -898,6 +950,43 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		$resolvers = array_filter($resolvers);
 
 		return self::implodeExpr($resolvers, BooleanOr::class);
+	}
+
+	/**
+	 * @param Arg[] $args
+	 * @return array{Expr, Expr}
+	 */
+	private static function createIsNonEmptyStringAndSomethingExprPair(array $args): array
+	{
+		$expr = new BooleanAnd(
+			new FuncCall(
+				new Name('is_string'),
+				[$args[0]]
+			),
+			new NotIdentical(
+				$args[0]->value,
+				new String_('')
+			)
+		);
+
+		$rootExpr = new BooleanAnd(
+			$expr,
+			new FuncCall(new Name('FAUX_FUNCTION'), $args)
+		);
+
+		return [$expr, $rootExpr];
+	}
+
+	private function specifyRootExprIfSet(?Expr $rootExpr, SpecifiedTypes $specifiedTypes): SpecifiedTypes
+	{
+		if ($rootExpr === null) {
+			return $specifiedTypes;
+		}
+
+		// Makes consecutive calls with a rootExpr adding unknown info via FAUX_FUNCTION evaluate to true
+		return $specifiedTypes->unionWith(
+			$this->typeSpecifier->create($rootExpr, new ConstantBooleanType(true), TypeSpecifierContext::createTruthy())
+		);
 	}
 
 }

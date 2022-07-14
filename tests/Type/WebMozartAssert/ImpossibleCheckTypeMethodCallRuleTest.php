@@ -68,6 +68,22 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::allCount() with array<non-empty-array> and 2 will always evaluate to true.',
 				76,
 			],
+			[
+				'Call to static method Webmozart\Assert\Assert::uuid() with non-empty-string will always evaluate to true.',
+				84,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::contains() with non-empty-string and \'foo\' will always evaluate to true.',
+				88,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::allUuid() with array<non-empty-string> will always evaluate to true.',
+				94,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::allContains() with array<non-empty-string> and \'foo\' will always evaluate to true.',
+				98,
+			],
 		]);
 	}
 
