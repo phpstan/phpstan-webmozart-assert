@@ -8,6 +8,84 @@ use function PHPStan\Testing\assertType;
 class TestStrings
 {
 
+	/**
+	 * @param non-empty-string $b
+	 */
+	public function contains(string $a, string $b): void
+	{
+		Assert::contains($a, $a);
+		assertType('string', $a);
+
+		Assert::contains($a, $b);
+		assertType('non-empty-string', $a);
+	}
+
+	/**
+	 * @param non-empty-string $b
+	 */
+	public function startsWith(string $a, string $b): void
+	{
+		Assert::startsWith($a, $a);
+		assertType('string', $a);
+
+		Assert::startsWith($a, $b);
+		assertType('non-empty-string', $a);
+	}
+
+	public function startsWithLetter(string $a): void
+	{
+		Assert::startsWithLetter($a);
+		assertType('non-empty-string', $a);
+	}
+
+	/**
+	 * @param non-empty-string $b
+	 */
+	public function endsWith(string $a, string $b): void
+	{
+		Assert::endsWith($a, $a);
+		assertType('string', $a);
+
+		Assert::endsWith($a, $b);
+		assertType('non-empty-string', $a);
+	}
+
+	public function unicodeLetters($a): void
+	{
+		Assert::unicodeLetters($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function alpha($a): void
+	{
+		Assert::alpha($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function digits(string $a): void
+	{
+		Assert::digits($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function alnum(string $a): void
+	{
+		Assert::alnum($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function lower(string $a): void
+	{
+		Assert::lower($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function upper(string $a): void
+	{
+		Assert::upper($a);
+		assertType('non-empty-string', $a);
+	}
+
 	public function length(string $a, string $b, string $c, ?string $d): void
 	{
 		Assert::length($a, 0);
@@ -72,6 +150,42 @@ class TestStrings
 
 		Assert::nullOrLengthBetween($f, 1, 1);
 		assertType('non-empty-string|null', $f);
+	}
+
+	public function uuid(string $a): void
+	{
+		Assert::uuid($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function ip($a): void
+	{
+		Assert::ip($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function ipv4($a): void
+	{
+		Assert::ipv4($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function ipv6($a): void
+	{
+		Assert::ipv6($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function email($a): void
+	{
+		Assert::email($a);
+		assertType('non-empty-string', $a);
+	}
+
+	public function notWhitespaceOnly(string $a): void
+	{
+		Assert::notWhitespaceOnly($a);
+		assertType('non-empty-string', $a);
 	}
 
 }

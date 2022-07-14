@@ -76,6 +76,29 @@ class Foo
 		Assert::allCount($a, 2);
 	}
 
+	public function nonEmptyStringAndSomethingUnknownNarrow($a, string $b, array $c, array $d): void
+	{
+		Assert::string($a);
+		Assert::stringNotEmpty($a);
+		Assert::uuid($a);
+		Assert::uuid($a); // only this should report
+
+		Assert::stringNotEmpty($b);
+		Assert::contains($b, 'foo');
+		Assert::contains($b, 'foo'); // only this should report
+		Assert::contains($b, 'bar');
+
+		Assert::allString($c);
+		Assert::allStringNotEmpty($c);
+		Assert::allUuid($c);
+		Assert::allUuid($c); // only this should report
+
+		Assert::allStringNotEmpty($d);
+		Assert::allContains($d, 'foo');
+		Assert::allContains($d, 'foo'); // only this should report
+		Assert::allContains($d, 'bar');
+	}
+
 }
 
 interface Bar {};
