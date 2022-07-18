@@ -739,9 +739,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			];
 
 			foreach (['contains', 'startsWith', 'endsWith'] as $name) {
-				self::$resolvers[$name] = static function (Scope $scope, Arg $value, Arg $subString): array {
+				self::$resolvers[$name] = static function (Scope $scope, Arg $value, Arg $subString) use ($name): array {
 					if ($scope->getType($subString->value)->isNonEmptyString()->yes()) {
-						return self::createIsNonEmptyStringAndSomethingExprPair([$value, $subString]);
+						return self::createIsNonEmptyStringAndSomethingExprPair($name, [$value, $subString]);
 					}
 
 					return [self::$resolvers['string']($scope, $value), null];
@@ -764,8 +764,8 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				'notWhitespaceOnly',
 			];
 			foreach ($assertionsResultingAtLeastInNonEmptyString as $name) {
-				self::$resolvers[$name] = static function (Scope $scope, Arg $value): array {
-					return self::createIsNonEmptyStringAndSomethingExprPair([$value]);
+				self::$resolvers[$name] = static function (Scope $scope, Arg $value) use ($name): array {
+					return self::createIsNonEmptyStringAndSomethingExprPair($name, [$value]);
 				};
 			}
 
@@ -956,7 +956,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	 * @param Arg[] $args
 	 * @return array{Expr, Expr}
 	 */
-	private static function createIsNonEmptyStringAndSomethingExprPair(array $args): array
+	private static function createIsNonEmptyStringAndSomethingExprPair(string $name, array $args): array
 	{
 		$expr = new BooleanAnd(
 			new FuncCall(
@@ -971,7 +971,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 		$rootExpr = new BooleanAnd(
 			$expr,
-			new FuncCall(new Name('FAUX_FUNCTION'), $args)
+			new FuncCall(new Name('FAUX_FUNCTION_ ' . $name), $args)
 		);
 
 		return [$expr, $rootExpr];
