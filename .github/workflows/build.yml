@@ -20,6 +20,8 @@ jobs:
           - "7.3"
           - "7.4"
           - "8.0"
+          - "8.1"
+          - "8.2"
 
     steps:
       - name: "Checkout"
@@ -83,6 +85,8 @@ jobs:
           - "7.3"
           - "7.4"
           - "8.0"
+          - "8.1"
+          - "8.2"
         dependencies:
           - "lowest"
           - "highest"
@@ -124,6 +128,8 @@ jobs:
           - "7.3"
           - "7.4"
           - "8.0"
+          - "8.1"
+          - "8.2"
         dependencies:
           - "lowest"
           - "highest"
