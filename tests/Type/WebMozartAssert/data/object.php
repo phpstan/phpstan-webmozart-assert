@@ -35,13 +35,25 @@ class ObjectTest
 		assertType('class-string|null', $b);
 	}
 
-	public function implementsInterface($a, $b): void
+	public function implementsInterface($a, $b, string $c, object $d, $e, $f): void
 	{
 		Assert::implementsInterface($a, ObjectFoo::class);
-		assertType('PHPStan\Type\WebMozartAssert\ObjectFoo', $a);
+		assertType('class-string<PHPStan\Type\WebMozartAssert\ObjectFoo>|PHPStan\Type\WebMozartAssert\ObjectFoo', $a);
 
 		Assert::nullOrImplementsInterface($b, ObjectFoo::class);
-		assertType('PHPStan\Type\WebMozartAssert\ObjectFoo|null', $b);
+		assertType('class-string<PHPStan\Type\WebMozartAssert\ObjectFoo>|PHPStan\Type\WebMozartAssert\ObjectFoo|null', $b);
+
+		Assert::implementsInterface($c, ObjectFoo::class);
+		assertType('class-string<PHPStan\Type\WebMozartAssert\ObjectFoo>', $c);
+
+		Assert::implementsInterface($d, ObjectFoo::class);
+		assertType('PHPStan\Type\WebMozartAssert\ObjectFoo', $d);
+
+		Assert::implementsInterface($e, self::class);
+		assertType('mixed', $e);
+
+		Assert::implementsInterface($f, Unknown::class);
+		assertType('mixed', $f);
 	}
 
 	public function propertyExists(object $a): void

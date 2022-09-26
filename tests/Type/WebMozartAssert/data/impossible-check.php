@@ -99,6 +99,18 @@ class Foo
 		Assert::allContains($d, 'bar');
 	}
 
+	public function implementsInterface($a, string $b, $c): void
+	{
+		Assert::implementsInterface($a, Bar::class);
+		Assert::implementsInterface($a, Bar::class);
+
+		Assert::implementsInterface($b, Bar::class);
+		Assert::implementsInterface($b, Bar::class);
+
+		Assert::implementsInterface($c, Unknown::class);
+		Assert::implementsInterface($c, self::class);
+	}
+
 }
 
 interface Bar {};

@@ -84,6 +84,18 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::allContains() with array<non-empty-string> and \'foo\' will always evaluate to true.',
 				98,
 			],
+			[
+				'Call to static method Webmozart\Assert\Assert::implementsInterface() with class-string<WebmozartAssertImpossibleCheck\Bar>|WebmozartAssertImpossibleCheck\Bar and \'WebmozartAssertImpossibleCheck\\\Bar\' will always evaluate to true.',
+				105,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::implementsInterface() with class-string<WebmozartAssertImpossibleCheck\Bar> and \'WebmozartAssertImpossibleCheck\\\Bar\' will always evaluate to true.',
+				108,
+			],
+			[
+				'Call to static method Webmozart\Assert\Assert::implementsInterface() with mixed and \'WebmozartAssertImpossibleCheck\\\Foo\' will always evaluate to false.',
+				111,
+			],
 		]);
 	}
 
@@ -173,6 +185,21 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				17,
 			],
 		]);
+	}
+
+	public function testBug17(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-17.php'], [
+			[
+				'Call to static method Webmozart\Assert\Assert::implementsInterface() with \'DateTime\' and \'DateTimeInterface\' will always evaluate to true.',
+				9,
+			],
+		]);
+	}
+
+	public function testBug18(): void
+	{
+		$this->analyse([__DIR__ . '/data/bug-18.php'], []);
 	}
 
 	public function testBug32(): void
