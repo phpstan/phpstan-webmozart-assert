@@ -451,10 +451,16 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						return null;
 					}
 
-					return new Instanceof_(
-						$expr->value,
-						new Name($classType->getValue())
-					);
+					$classReflection = (new ObjectType($classType->getValue()))->getClassReflection();
+					if ($classReflection === null) {
+						return null;
+					}
+
+					if (!$classReflection->isInterface()) {
+						return new ConstFetch(new Name('false'));
+					}
+
+					return self::$resolvers['subclassOf']($scope, $expr, $class);
 				},
 				'keyExists' => static function (Scope $scope, Arg $array, Arg $key): Expr {
 					return new FuncCall(
