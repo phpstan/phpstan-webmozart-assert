@@ -101,19 +101,19 @@ class ArrayTest
 	public function isList($a, $b): void
 	{
 		Assert::isList($a);
-		assertType('array<int, mixed>', $a);
+		assertType('list<mixed>', $a);
 
 		Assert::nullOrIsList($b);
-		assertType('array<int, mixed>|null', $b);
+		assertType('list<mixed>|null', $b);
 	}
 
 	public function isNonEmptyList($a, $b): void
 	{
 		Assert::isNonEmptyList($a);
-		assertType('non-empty-array<int, mixed>', $a);
+		assertType('non-empty-list<mixed>', $a);
 
 		Assert::nullOrIsNonEmptyList($b);
-		assertType('non-empty-array<int, mixed>|null', $b);
+		assertType('non-empty-list<mixed>|null', $b);
 	}
 
 	public function isMap($a, $b): void
