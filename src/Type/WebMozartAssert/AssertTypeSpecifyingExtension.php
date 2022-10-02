@@ -351,11 +351,11 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 							[$expr]
 						),
 						new Identical(
+							$expr->value,
 							new FuncCall(
-								new Name('array_filter'),
-								[$expr, new Arg(new String_('is_int')), new Arg(new ConstFetch(new Name('ARRAY_FILTER_USE_KEY')))]
-							),
-							$expr->value
+								new Name('array_values'),
+								[$expr]
+							)
 						)
 					);
 				},
