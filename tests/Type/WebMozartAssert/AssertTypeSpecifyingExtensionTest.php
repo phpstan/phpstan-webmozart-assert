@@ -37,7 +37,6 @@ class AssertTypeSpecifyingExtensionTest extends TypeInferenceTestCase
 	{
 		return [
 			__DIR__ . '/../../../extension.neon',
-			'phar://' . __DIR__ . '/../../../vendor/phpstan/phpstan/phpstan.phar/conf/bleedingEdge.neon',
 		];
 	}
 
