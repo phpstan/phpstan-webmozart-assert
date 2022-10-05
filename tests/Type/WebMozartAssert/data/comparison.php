@@ -44,6 +44,32 @@ class ComparisonTest
 		assertType('int', $a);
 	}
 
+	/** @param string|null $c */
+	public function isEmpty(string $a, $b, $c): void
+	{
+		Assert::isEmpty($a);
+		assertType("''|'0'", $a);
+
+		Assert::isEmpty($b);
+		assertType("0|0.0|''|'0'|array{}|false|null", $b);
+
+		Assert::isEmpty($c);
+		assertType("''|'0'|null", $c);
+	}
+
+	/** @param string|null $c */
+	public function notEmpty(string $a, $b, $c): void
+	{
+		Assert::notEmpty($a);
+		assertType('non-falsy-string', $a);
+
+		Assert::notEmpty($b);
+		assertType("mixed~0|0.0|''|'0'|array{}|false|null", $b);
+
+		Assert::notEmpty($c);
+		assertType('non-falsy-string', $c);
+	}
+
 	/**
 	 * @param non-empty-string  $b2
 	 */
