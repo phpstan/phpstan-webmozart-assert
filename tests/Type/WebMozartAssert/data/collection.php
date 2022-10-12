@@ -98,22 +98,26 @@ class CollectionTest
 		assertType('array<PHPStan\Type\WebMozartAssert\CollectionFoo>', $c);
 	}
 
-	/**
-	 * @param (int|null)[] $a
-	 */
-	public function allNotNull(array $a): void
+	public function allNotNull(array $arr): void
 	{
-		Assert::allNotNull($a);
-		assertType('array<int>', $a);
+		/** @var (int|null)[] $arr */
+		Assert::allNotNull($arr);
+		assertType('array<int>', $arr);
+
+		/** @var array{baz: float|null}|array{foo?: string|null, bar: int|null} $arr */
+		Assert::allNotNull($arr);
+		assertType('array{baz: float}|array{foo?: string, bar: int}', $arr);
 	}
 
-	/**
-	 * @param array{-1|1, -2|2, -3|3} $a
-	 */
-	public function allNotSame(array $a): void
+	public function allNotSame(array $arr): void
 	{
-		Assert::allNotSame($a, -1);
-		assertType('array{1, -2|2, -3|3}', $a);
+		/** @var array{-1|1, -2|2, -3|3} $arr */
+		Assert::allNotSame($arr, -1);
+		assertType('array{1, -2|2, -3|3}', $arr);
+
+		/** @var array{-1, -2, -3}|array{1, 2, 3} $arr */
+		Assert::allNotSame($arr, -1);
+		assertType('array{*NEVER*, -2, -3}|array{1, 2, 3}', $arr);
 	}
 
 	public function allSubclassOf(array $a, iterable $b, $c): void

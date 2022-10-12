@@ -49,7 +49,6 @@ use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
-use PHPStan\Type\TypeUtils;
 use PHPStan\Type\TypeWithClassName;
 use ReflectionObject;
 use Traversable;
@@ -886,7 +885,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	): SpecifiedTypes
 	{
 		$currentType = TypeCombinator::intersect($scope->getType($expr), new IterableType(new MixedType(), new MixedType()));
-		$arrayTypes = TypeUtils::getArrays($currentType);
+		$arrayTypes = $currentType->getArrays();
 		if (count($arrayTypes) > 0) {
 			$newArrayTypes = [];
 			foreach ($arrayTypes as $arrayType) {
@@ -894,7 +893,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					$builder = ConstantArrayTypeBuilder::createEmpty();
 					foreach ($arrayType->getKeyTypes() as $i => $keyType) {
 						$valueType = $arrayType->getValueTypes()[$i];
-						$builder->setOffsetValueType($keyType, $typeCallback($valueType));
+						$builder->setOffsetValueType($keyType, $typeCallback($valueType), $arrayType->isOptionalKey($i));
 					}
 					$newArrayTypes[] = $builder->getArray();
 				} else {
