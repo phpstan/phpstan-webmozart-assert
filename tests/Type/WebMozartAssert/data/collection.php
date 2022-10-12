@@ -98,11 +98,19 @@ class CollectionTest
 		assertType('array<PHPStan\Type\WebMozartAssert\CollectionFoo>', $c);
 	}
 
-	public function allNotNull(array $arr): void
+	public function allNotNull(array $arr, iterable $iter): void
 	{
 		/** @var (int|null)[] $arr */
 		Assert::allNotNull($arr);
 		assertType('array<int>', $arr);
+
+		/** @var null[] $arr */
+		Assert::allNotNull($arr);
+		assertType('*NEVER*', $arr);
+
+		/** @var iterable<null> $iter */
+		Assert::allNotNull($iter);
+		assertType('*NEVER*', $iter);
 
 		/** @var array{baz: float|null}|array{foo?: string|null, bar: int|null} $arr */
 		Assert::allNotNull($arr);
@@ -117,7 +125,11 @@ class CollectionTest
 
 		/** @var array{-1, -2, -3}|array{1, 2, 3} $arr */
 		Assert::allNotSame($arr, -1);
-		assertType('array{*NEVER*, -2, -3}|array{1, 2, 3}', $arr);
+		assertType('array{1, 2, 3}', $arr);
+
+		/** @var array{-1, -2, -3} $arr */
+		Assert::allNotSame($arr, -1);
+		assertType('*NEVER*', $arr);
 	}
 
 	public function allSubclassOf(array $a, iterable $b, $c): void

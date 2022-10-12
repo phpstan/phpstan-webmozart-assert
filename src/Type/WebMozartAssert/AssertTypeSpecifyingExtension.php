@@ -786,7 +786,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	): SpecifiedTypes
 	{
 		if ($methodName === 'allNotNull') {
-			return $this->arrayOrIterable(
+			return $this->allArrayOrIterable(
 				$scope,
 				$node->getArgs()[0]->value,
 				static function (Type $type): Type {
@@ -806,7 +806,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				return new SpecifiedTypes([], []);
 			}
 
-			return $this->arrayOrIterable(
+			return $this->allArrayOrIterable(
 				$scope,
 				$node->getArgs()[0]->value,
 				static function (Type $type) use ($objectType): Type {
@@ -817,7 +817,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 		if ($methodName === 'allNotSame') {
 			$valueType = $scope->getType($node->getArgs()[1]->value);
-			return $this->arrayOrIterable(
+			return $this->allArrayOrIterable(
 				$scope,
 				$node->getArgs()[0]->value,
 				static function (Type $type) use ($valueType): Type {
@@ -864,7 +864,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				$type = $typeModifier($type);
 			}
 
-			return $this->arrayOrIterable(
+			return $this->allArrayOrIterable(
 				$scope,
 				$node->getArgs()[0]->value,
 				static function () use ($type): Type {
@@ -877,7 +877,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		return $specifiedTypes;
 	}
 
-	private function arrayOrIterable(
+	private function allArrayOrIterable(
 		Scope $scope,
 		Expr $expr,
 		Closure $typeCallback,
@@ -892,18 +892,30 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				if ($arrayType instanceof ConstantArrayType) {
 					$builder = ConstantArrayTypeBuilder::createEmpty();
 					foreach ($arrayType->getKeyTypes() as $i => $keyType) {
-						$valueType = $arrayType->getValueTypes()[$i];
-						$builder->setOffsetValueType($keyType, $typeCallback($valueType), $arrayType->isOptionalKey($i));
+						$valueType = $typeCallback($arrayType->getValueTypes()[$i]);
+						if ($valueType instanceof NeverType) {
+							continue 2;
+						}
+						$builder->setOffsetValueType($keyType, $valueType, $arrayType->isOptionalKey($i));
 					}
 					$newArrayTypes[] = $builder->getArray();
 				} else {
-					$newArrayTypes[] = new ArrayType($arrayType->getKeyType(), $typeCallback($arrayType->getItemType()));
+					$itemType = $typeCallback($arrayType->getItemType());
+					if ($itemType instanceof NeverType) {
+						continue;
+					}
+					$newArrayTypes[] = new ArrayType($arrayType->getKeyType(), $itemType);
 				}
 			}
 
 			$specifiedType = TypeCombinator::union(...$newArrayTypes);
 		} elseif ((new IterableType(new MixedType(), new MixedType()))->isSuperTypeOf($currentType)->yes()) {
-			$specifiedType = new IterableType($currentType->getIterableKeyType(), $typeCallback($currentType->getIterableValueType()));
+			$itemType = $typeCallback($currentType->getIterableValueType());
+			if ($itemType instanceof NeverType) {
+				$specifiedType = $itemType;
+			} else {
+				$specifiedType = new IterableType($currentType->getIterableKeyType(), $itemType);
+			}
 		} else {
 			return new SpecifiedTypes([], []);
 		}
