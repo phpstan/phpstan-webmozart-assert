@@ -35,21 +35,18 @@ use PHPStan\Analyser\TypeSpecifier;
 use PHPStan\Analyser\TypeSpecifierAwareExtension;
 use PHPStan\Analyser\TypeSpecifierContext;
 use PHPStan\Reflection\MethodReflection;
+use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\ShouldNotHappenException;
 use PHPStan\Type\ArrayType;
-use PHPStan\Type\Constant\ConstantArrayType;
 use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
 use PHPStan\Type\Constant\ConstantBooleanType;
-use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\IterableType;
 use PHPStan\Type\MixedType;
 use PHPStan\Type\NeverType;
-use PHPStan\Type\ObjectType;
 use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
-use PHPStan\Type\TypeWithClassName;
 use ReflectionObject;
 use Traversable;
 use function array_filter;
@@ -66,10 +63,18 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 {
 
 	/** @var Closure[] */
-	private static $resolvers;
+	private $resolvers;
+
+	/** @var ReflectionProvider */
+	private $reflectionProvider;
 
 	/** @var TypeSpecifier */
 	private $typeSpecifier;
+
+	public function __construct(ReflectionProvider $reflectionProvider)
+	{
+		$this->reflectionProvider = $reflectionProvider;
+	}
 
 	public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
 	{
@@ -98,7 +103,7 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		}
 
 		$trimmedName = self::trimName($staticMethodReflection->getName());
-		$resolvers = self::getExpressionResolvers();
+		$resolvers = $this->getExpressionResolvers();
 
 		if (!array_key_exists($trimmedName, $resolvers)) {
 			return false;
@@ -176,14 +181,14 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	 * @param Arg[] $args
 	 * @return array{?Expr, ?Expr}
 	 */
-	private static function createExpression(
+	private function createExpression(
 		Scope $scope,
 		string $name,
 		array $args
 	): array
 	{
 		$trimmedName = self::trimName($name);
-		$resolvers = self::getExpressionResolvers();
+		$resolvers = $this->getExpressionResolvers();
 		$resolver = $resolvers[$trimmedName];
 
 		$resolverResult = $resolver($scope, ...$args);
@@ -214,10 +219,10 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 	/**
 	 * @return array<string, callable(Scope, Arg...): (Expr|array{?Expr, ?Expr}|null)>
 	 */
-	private static function getExpressionResolvers(): array
+	private function getExpressionResolvers(): array
 	{
-		if (self::$resolvers === null) {
-			self::$resolvers = [
+		if ($this->resolvers === null) {
+			$this->resolvers = [
 				'integer' => static function (Scope $scope, Arg $value): Expr {
 					return new FuncCall(
 						new Name('is_int'),
@@ -328,8 +333,8 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						[$value]
 					);
 				},
-				'isTraversable' => static function (Scope $scope, Arg $value): Expr {
-					return self::$resolvers['isIterable']($scope, $value);
+				'isTraversable' => function (Scope $scope, Arg $value): Expr {
+					return $this->resolvers['isIterable']($scope, $value);
 				},
 				'isIterable' => static function (Scope $scope, Arg $expr): Expr {
 					return new BooleanOr(
@@ -358,9 +363,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
-				'isNonEmptyList' => static function (Scope $scope, Arg $expr): Expr {
+				'isNonEmptyList' => function (Scope $scope, Arg $expr): Expr {
 					return new BooleanAnd(
-						self::$resolvers['isList']($scope, $expr),
+						$this->resolvers['isList']($scope, $expr),
 						new NotIdentical(
 							$expr->value,
 							new Array_()
@@ -382,9 +387,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
-				'isNonEmptyMap' => static function (Scope $scope, Arg $expr): Expr {
+				'isNonEmptyMap' => function (Scope $scope, Arg $expr): Expr {
 					return new BooleanAnd(
-						self::$resolvers['isMap']($scope, $expr),
+						$this->resolvers['isMap']($scope, $expr),
 						new NotIdentical(
 							$expr->value,
 							new Array_()
@@ -405,24 +410,22 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				},
 				'isInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
-					if ($classType instanceof ConstantStringType) {
-						$className = new Name($classType->getValue());
-					} elseif ($classType instanceof TypeWithClassName) {
-						$className = new Name($classType->getClassName());
-					} else {
+					$classNameType = $classType->getObjectTypeOrClassStringObjectType();
+					$classNames = $classNameType->getObjectClassNames();
+					if (count($classNames) !== 1) {
 						return null;
 					}
 
 					return new Instanceof_(
 						$expr->value,
-						$className
+						new Name($classNames[0])
 					);
 				},
-				'isInstanceOfAny' => static function (Scope $scope, Arg $expr, Arg $classes): ?Expr {
-					return self::buildAnyOfExpr($scope, $expr, $classes, self::$resolvers['isInstanceOf']);
+				'isInstanceOfAny' => function (Scope $scope, Arg $expr, Arg $classes): ?Expr {
+					return self::buildAnyOfExpr($scope, $expr, $classes, $this->resolvers['isInstanceOf']);
 				},
-				'notInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
-					$expr = self::$resolvers['isInstanceOf']($scope, $expr, $class);
+				'notInstanceOf' => function (Scope $scope, Arg $expr, Arg $class): ?Expr {
+					$expr = $this->resolvers['isInstanceOf']($scope, $expr, $class);
 					if ($expr === null) {
 						return null;
 					}
@@ -438,28 +441,30 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						[$expr, $class, new Arg(new ConstFetch(new Name($allowString ? 'true' : 'false')))]
 					);
 				},
-				'isAnyOf' => static function (Scope $scope, Arg $value, Arg $classes): ?Expr {
-					return self::buildAnyOfExpr($scope, $value, $classes, self::$resolvers['isAOf']);
+				'isAnyOf' => function (Scope $scope, Arg $value, Arg $classes): ?Expr {
+					return self::buildAnyOfExpr($scope, $value, $classes, $this->resolvers['isAOf']);
 				},
-				'isNotA' => static function (Scope $scope, Arg $value, Arg $class): Expr {
-					return new BooleanNot(self::$resolvers['isAOf']($scope, $value, $class));
+				'isNotA' => function (Scope $scope, Arg $value, Arg $class): Expr {
+					return new BooleanNot($this->resolvers['isAOf']($scope, $value, $class));
 				},
-				'implementsInterface' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
-					$classType = $scope->getType($class->value);
-					if (!$classType instanceof ConstantStringType) {
+				'implementsInterface' => function (Scope $scope, Arg $expr, Arg $class): ?Expr {
+					$classType = $scope->getType($class->value)->getClassStringObjectType();
+					$classNames = $classType->getObjectClassNames();
+
+					if (count($classNames) !== 1) {
 						return null;
 					}
 
-					$classReflection = (new ObjectType($classType->getValue()))->getClassReflection();
-					if ($classReflection === null) {
+					if (!$this->reflectionProvider->hasClass($classNames[0])) {
 						return null;
 					}
 
+					$classReflection = $this->reflectionProvider->getClass($classNames[0]);
 					if (!$classReflection->isInterface()) {
 						return new ConstFetch(new Name('false'));
 					}
 
-					return self::$resolvers['subclassOf']($scope, $expr, $class);
+					return $this->resolvers['subclassOf']($scope, $expr, $class);
 				},
 				'keyExists' => static function (Scope $scope, Arg $array, Arg $key): Expr {
 					return new FuncCall(
@@ -467,8 +472,8 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						[$key, $array]
 					);
 				},
-				'keyNotExists' => static function (Scope $scope, Arg $array, Arg $key): Expr {
-					return new BooleanNot(self::$resolvers['keyExists']($scope, $array, $key));
+				'keyNotExists' => function (Scope $scope, Arg $array, Arg $key): Expr {
+					return new BooleanNot($this->resolvers['keyExists']($scope, $array, $key));
 				},
 				'validArrayKey' => static function (Scope $scope, Arg $value): Expr {
 					return new BooleanOr(
@@ -518,8 +523,8 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						$value2->value
 					);
 				},
-				'notEq' => static function (Scope $scope, Arg $value, Arg $value2): Expr {
-					return new BooleanNot(self::$resolvers['eq']($scope, $value, $value2));
+				'notEq' => function (Scope $scope, Arg $value, Arg $value2): Expr {
+					return new BooleanNot($this->resolvers['eq']($scope, $value, $value2));
 				},
 				'same' => static function (Scope $scope, Arg $value1, Arg $value2): Expr {
 					return new Identical(
@@ -714,8 +719,8 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						]
 					);
 				},
-				'oneOf' => static function (Scope $scope, Arg $needle, Arg $array): Expr {
-					return self::$resolvers['inArray']($scope, $needle, $array);
+				'oneOf' => function (Scope $scope, Arg $needle, Arg $array): Expr {
+					return $this->resolvers['inArray']($scope, $needle, $array);
 				},
 				'methodExists' => static function (Scope $scope, Arg $object, Arg $method): Expr {
 					return new FuncCall(
@@ -744,12 +749,12 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			];
 
 			foreach (['contains', 'startsWith', 'endsWith'] as $name) {
-				self::$resolvers[$name] = static function (Scope $scope, Arg $value, Arg $subString) use ($name): array {
+				$this->resolvers[$name] = function (Scope $scope, Arg $value, Arg $subString) use ($name): array {
 					if ($scope->getType($subString->value)->isNonEmptyString()->yes()) {
 						return self::createIsNonEmptyStringAndSomethingExprPair($name, [$value, $subString]);
 					}
 
-					return [self::$resolvers['string']($scope, $value), null];
+					return [$this->resolvers['string']($scope, $value), null];
 				};
 			}
 
@@ -769,14 +774,14 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				'notWhitespaceOnly',
 			];
 			foreach ($assertionsResultingAtLeastInNonEmptyString as $name) {
-				self::$resolvers[$name] = static function (Scope $scope, Arg $value) use ($name): array {
+				$this->resolvers[$name] = static function (Scope $scope, Arg $value) use ($name): array {
 					return self::createIsNonEmptyStringAndSomethingExprPair($name, [$value]);
 				};
 			}
 
 		}
 
-		return self::$resolvers;
+		return $this->resolvers;
 	}
 
 	private function handleAllNot(
@@ -797,20 +802,17 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 
 		if ($methodName === 'allNotInstanceOf') {
 			$classType = $scope->getType($node->getArgs()[1]->value);
-
-			if ($classType instanceof ConstantStringType) {
-				$objectType = new ObjectType($classType->getValue());
-			} elseif ($classType instanceof TypeWithClassName) {
-				$objectType = new ObjectType($classType->getClassName());
-			} else {
+			$classNameType = $classType->getObjectTypeOrClassStringObjectType();
+			$classNames = $classNameType->getObjectClassNames();
+			if (count($classNames) !== 1) {
 				return new SpecifiedTypes([], []);
 			}
 
 			return $this->allArrayOrIterable(
 				$scope,
 				$node->getArgs()[0]->value,
-				static function (Type $type) use ($objectType): Type {
-					return TypeCombinator::remove($type, $objectType);
+				static function (Type $type) use ($classNameType): Type {
+					return TypeCombinator::remove($type, $classNameType);
 				}
 			);
 		}
@@ -889,14 +891,15 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 		if (count($arrayTypes) > 0) {
 			$newArrayTypes = [];
 			foreach ($arrayTypes as $arrayType) {
-				if ($arrayType instanceof ConstantArrayType) {
+				$constantArrays = $arrayType->getConstantArrays();
+				if (count($constantArrays) === 1) {
 					$builder = ConstantArrayTypeBuilder::createEmpty();
-					foreach ($arrayType->getKeyTypes() as $i => $keyType) {
-						$valueType = $typeCallback($arrayType->getValueTypes()[$i]);
+					foreach ($constantArrays[0]->getKeyTypes() as $i => $keyType) {
+						$valueType = $typeCallback($constantArrays[0]->getValueTypes()[$i]);
 						if ($valueType instanceof NeverType) {
 							continue 2;
 						}
-						$builder->setOffsetValueType($keyType, $valueType, $arrayType->isOptionalKey($i));
+						$builder->setOffsetValueType($keyType, $valueType, $constantArrays[0]->isOptionalKey($i));
 					}
 					$newArrayTypes[] = $builder->getArray();
 				} else {
