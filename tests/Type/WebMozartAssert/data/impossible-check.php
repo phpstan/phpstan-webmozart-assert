@@ -111,6 +111,14 @@ class Foo
 		Assert::implementsInterface($c, self::class);
 	}
 
+	/**
+	 * @param class-string<\Exception> $name
+	 */
+	public function testInstanceOfClassString(\Exception $e, string $name): void
+	{
+		Assert::isInstanceOf($e, $name);
+	}
+
 }
 
 interface Bar {};

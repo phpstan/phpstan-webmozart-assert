@@ -410,15 +410,21 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				},
 				'isInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
-					$classNameType = $classType->getObjectTypeOrClassStringObjectType();
-					$classNames = $classNameType->getObjectClassNames();
-					if (count($classNames) !== 1) {
+					$classNameStrings = $classType->getConstantStrings();
+					if (count($classNameStrings) !== 1) {
+						$classNames = $classType->getObjectClassNames();
+						if (count($classNames) === 1) {
+							return new Instanceof_(
+								$expr->value,
+								new Name($classNames[0])
+							);
+						}
 						return null;
 					}
 
 					return new Instanceof_(
 						$expr->value,
-						new Name($classNames[0])
+						new Name($classNameStrings[0]->getValue())
 					);
 				},
 				'isInstanceOfAny' => function (Scope $scope, Arg $expr, Arg $classes): ?Expr {
