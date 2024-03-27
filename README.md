@@ -9,12 +9,12 @@
 
 ## Description
 
-The main scope of this extension is to help phpstan to detect the type of object after the `Webmozart\Assert` validation.
+The main scope of this extension is to help phpstan to detect the type of object after the `Webmozart\Assert\Assert` validation.
 
 ```php
 <?php declare(strict_types = 1);
 
-use Webmozart\Assert;
+use Webmozart\Assert\Assert;
 
 function demo(?int $a) {
 	// ...
