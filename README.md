@@ -9,7 +9,7 @@
 
 ## Description
 
-The main scope of this extension is to help phpstan to detect the type of object after the `Webmozart\Assert\Assert` validation.
+The main scope of this extension is to help PHPStan to detect the type of object after the `Webmozart\Assert\Assert` validation.
 
 ```php
 <?php declare(strict_types = 1);
@@ -20,95 +20,11 @@ function demo(?int $a) {
 	// ...
 
 	Assert::integer($a);
-	// phpstan is now aware that $a can no longer be `null` at this point
+	// PHPStan is now aware that $a can no longer be `null` at this point
 
 	return ($a === 10);
 }
 ```
-
-This extension specifies types of values passed to:
-
-* `Assert::integer`
-* `Assert::positiveInteger`
-* `Assert::string`
-* `Assert::stringNotEmpty`
-* `Assert::float`
-* `Assert::numeric`
-* `Assert::natural`
-* `Assert::integerish`
-* `Assert::boolean`
-* `Assert::scalar`
-* `Assert::object`
-* `Assert::resource`
-* `Assert::isCallable`
-* `Assert::isArray`
-* `Assert::isTraversable` (deprecated, use `isIterable` or `isInstanceOf` instead)
-* `Assert::isIterable`
-* `Assert::isCountable`
-* `Assert::isInstanceOf`
-* `Assert::isInstanceOfAny`
-* `Assert::notInstanceOf`
-* `Assert::isAOf`
-* `Assert::isAnyOf`
-* `Assert::isNotA`
-* `Assert::subclassOf`
-* `Assert::true`
-* `Assert::false`
-* `Assert::notFalse`
-* `Assert::null`
-* `Assert::notNull`
-* `Assert::isEmpty`
-* `Assert::notEmpty`
-* `Assert::eq`
-* `Assert::notEq`
-* `Assert::same`
-* `Assert::notSame`
-* `Assert::greaterThan`
-* `Assert::greaterThanEq`
-* `Assert::lessThan`
-* `Assert::lessThanEq`
-* `Assert::range`
-* `Assert::implementsInterface`
-* `Assert::classExists`
-* `Assert::interfaceExists`
-* `Assert::keyExists`
-* `Assert::keyNotExists`
-* `Assert::validArrayKey`
-* `Assert::count`
-* `Assert::minCount`
-* `Assert::maxCount`
-* `Assert::countBetween`
-* `Assert::isList`
-* `Assert::isNonEmptyList`
-* `Assert::isMap`
-* `Assert::isNonEmptyMap`
-* `Assert::inArray`
-* `Assert::oneOf`
-* `Assert::methodExists`
-* `Assert::propertyExists`
-* `Assert::isArrayAccessible`
-* `Assert::contains`
-* `Assert::startsWith`
-* `Assert::startsWithLetter`
-* `Assert::endsWith`
-* `Assert::unicodeLetters`
-* `Assert::alpha`
-* `Assert::digits`
-* `Assert::alnum`
-* `Assert::lower`
-* `Assert::upper`
-* `Assert::length`
-* `Assert::minLength`
-* `Assert::maxLength`
-* `Assert::lengthBetween`
-* `Assert::uuid`
-* `Assert::ip`
-* `Assert::ipv4`
-* `Assert::ipv6`
-* `Assert::email`
-* `Assert::notWhitespaceOnly`
-* `nullOr*`, `all*` and `allNullOr*` variants of the above methods
-
 
 ## Installation
 
