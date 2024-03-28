@@ -752,6 +752,9 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 						)
 					);
 				},
+				'uniqueValues' => static function (Scope $scope, Arg $value): array {
+					return self::createIsNonEmptyArrayAndSomethingExprPair('uniqueValues', [$value]);
+				},
 			];
 
 			foreach (['contains', 'startsWith', 'endsWith'] as $name) {
@@ -784,7 +787,6 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 					return self::createIsNonEmptyStringAndSomethingExprPair($name, [$value]);
 				};
 			}
-
 		}
 
 		return $this->resolvers;
@@ -993,6 +995,28 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				$args[0]->value,
 				new String_('')
 			)
+		);
+
+		$rootExpr = new BooleanAnd(
+			$expr,
+			new FuncCall(new Name('FAUX_FUNCTION_ ' . $name), $args)
+		);
+
+		return [$expr, $rootExpr];
+	}
+
+	/**
+	 * @param Arg[] $args
+	 * @return array{Expr, Expr}
+	 */
+	private static function createIsNonEmptyArrayAndSomethingExprPair(string $name, array $args): array
+	{
+		$expr = new GreaterOrEqual(
+			new FuncCall(
+				new Name('count'),
+				[$args[0]]
+			),
+			new LNumber(1)
 		);
 
 		$rootExpr = new BooleanAnd(
