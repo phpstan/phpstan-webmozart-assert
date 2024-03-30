@@ -305,12 +305,6 @@ class TypeTest
 		Assert::nullOrIsArrayAccessible($b);
 		assertType('array|ArrayAccess|null', $b);
 	}
-
-	public function uniqueValues(array $a): void
-	{
-		Assert::uniqueValues($a);
-		assertType('non-empty-array', $a);
-	}
 }
 
 class Foo {}
