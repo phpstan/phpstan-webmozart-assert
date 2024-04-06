@@ -9,7 +9,6 @@ use PhpParser\Node\Arg;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayDimFetch;
-use PhpParser\Node\Expr\ArrayItem;
 use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 use PhpParser\Node\Expr\BinaryOp\BooleanOr;
@@ -49,9 +48,7 @@ use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 use ReflectionObject;
 use Traversable;
-use function array_filter;
 use function array_key_exists;
-use function array_map;
 use function array_reduce;
 use function array_shift;
 use function count;
@@ -966,13 +963,19 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 			return null;
 		}
 
-		$resolvers = array_map(
-			static function (?ArrayItem $item) use ($scope, $value, $resolver) {
-				return $item !== null ? $resolver($scope, $value, new Arg($item->value)) : null;
-			},
-			$items->value->items
-		);
-		$resolvers = array_filter($resolvers);
+		$resolvers = [];
+		foreach ($items->value->items as $key => $item) {
+			if ($item === null) {
+				continue;
+			}
+
+			$resolved = $resolver($scope, $value, new Arg($item->value));
+			if ($resolved === null) {
+				continue;
+			}
+
+			$resolvers[$key] = $resolved;
+		}
 
 		return self::implodeExpr($resolvers, BooleanOr::class);
 	}
