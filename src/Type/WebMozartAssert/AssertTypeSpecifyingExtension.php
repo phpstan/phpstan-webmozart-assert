@@ -49,6 +49,7 @@ use PHPStan\Type\TypeCombinator;
 use ReflectionObject;
 use Traversable;
 use function array_key_exists;
+use function array_map;
 use function array_reduce;
 use function array_shift;
 use function count;
@@ -407,33 +408,37 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				},
 				'isInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
 					$classType = $scope->getType($class->value);
-					$classNameStrings = $classType->getConstantStrings();
-					if (count($classNameStrings) !== 1) {
-						$classNames = $classType->getObjectClassNames();
-						if (count($classNames) === 1) {
-							return new Instanceof_(
-								$expr->value,
-								new Name($classNames[0])
-							);
-						}
-						return null;
+					$classNames = $classType->getObjectTypeOrClassStringObjectType()->getObjectClassNames();
+
+					if (count($classNames) !== 0) {
+						return self::implodeExpr(array_map(static function (string $className) use ($expr): Expr {
+							return new Instanceof_($expr->value, new Name($className));
+						}, $classNames), BooleanOr::class);
 					}
 
-					return new Instanceof_(
-						$expr->value,
-						new Name($classNameStrings[0]->getValue())
+					return new FuncCall(
+						new Name('is_object'),
+						[$expr]
 					);
 				},
 				'isInstanceOfAny' => function (Scope $scope, Arg $expr, Arg $classes): ?Expr {
 					return self::buildAnyOfExpr($scope, $expr, $classes, $this->resolvers['isInstanceOf']);
 				},
-				'notInstanceOf' => function (Scope $scope, Arg $expr, Arg $class): ?Expr {
-					$expr = $this->resolvers['isInstanceOf']($scope, $expr, $class);
-					if ($expr === null) {
-						return null;
+				'notInstanceOf' => static function (Scope $scope, Arg $expr, Arg $class): ?Expr {
+					$classType = $scope->getType($class->value);
+					$classNames = $classType->getObjectTypeOrClassStringObjectType()->getObjectClassNames();
+
+					if (count($classNames) !== 0) {
+						$result = self::implodeExpr(array_map(static function (string $className) use ($expr): Expr {
+							return new Instanceof_($expr->value, new Name($className));
+						}, $classNames), BooleanOr::class);
+
+						if ($result !== null) {
+							return new BooleanNot($result);
+						}
 					}
 
-					return new BooleanNot($expr);
+					return null;
 				},
 				'isAOf' => static function (Scope $scope, Arg $expr, Arg $class): Expr {
 					$exprType = $scope->getType($expr->value);

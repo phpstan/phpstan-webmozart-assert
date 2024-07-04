@@ -101,6 +101,10 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::implementsInterface() with mixed and \'WebmozartAssertImpossibleCheck\\\Foo\' will always evaluate to false.',
 				111,
 			],
+			[
+				'Call to static method Webmozart\Assert\Assert::isInstanceOf() with Exception and class-string<Exception> will always evaluate to true.',
+				119,
+			],
 		]);
 	}
 

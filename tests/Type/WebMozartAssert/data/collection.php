@@ -75,7 +75,7 @@ class CollectionTest
 		assertType('array<stdClass>', $b);
 
 		Assert::allIsInstanceOf($c, 17);
-		assertType('array', $c);
+		assertType('array<object>', $c);
 
 		Assert::allIsInstanceOf($d, new stdClass());
 		assertType('iterable<stdClass>', $d);

@@ -197,7 +197,7 @@ class TypeTest
 		assertType('stdClass', $c);
 
 		Assert::isInstanceOf($d, 17);
-		assertType('mixed', $d);
+		assertType('object', $d);
 	}
 
 	public function isInstanceOfAny($a, $b, $c, $d, $e, $f, $g): void
@@ -215,10 +215,10 @@ class TypeTest
 		assertType('mixed', $d);
 
 		Assert::isInstanceOfAny($e, [17]);
-		assertType('mixed', $e);
+		assertType('object', $e);
 
 		Assert::isInstanceOfAny($f, [17, self::class]);
-		assertType('PHPStan\Type\WebMozartAssert\TypeTest', $f);
+		assertType('object', $f);
 
 		Assert::nullOrIsInstanceOfAny($g, [self::class, new stdClass()]);
 		assertType('PHPStan\Type\WebMozartAssert\TypeTest|stdClass|null', $g);
