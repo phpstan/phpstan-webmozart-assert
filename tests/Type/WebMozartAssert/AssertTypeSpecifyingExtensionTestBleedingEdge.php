@@ -7,7 +7,6 @@ use PHPStan\Testing\TypeInferenceTestCase;
 class AssertTypeSpecifyingExtensionTestBleedingEdge extends TypeInferenceTestCase
 {
 
-	/** @return iterable<mixed> */
 	public function dataFileAsserts(): iterable
 	{
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/array-bleeding-edge.php');
