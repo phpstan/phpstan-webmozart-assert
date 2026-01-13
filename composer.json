@@ -16,7 +16,7 @@
 		"phpstan/phpstan-phpunit": "^2.0",
 		"phpstan/phpstan-strict-rules": "^2.0",
 		"phpunit/phpunit": "^9.6",
-		"webmozart/assert": "^1.11.0"
+		"webmozart/assert": "^1.11.0 || ^2.0"
 	},
 	"config": {
 		"platform": {
