@@ -16,8 +16,8 @@
 		"phpstan/phpstan-deprecation-rules": "^2.0",
 		"phpstan/phpstan-phpunit": "^2.0",
 		"phpstan/phpstan-strict-rules": "^2.0",
-		"phpunit/phpunit": "^9.6",
-		"webmozart/assert": "^1.11.0"
+		"phpunit/phpunit": "^13.0",
+		"webmozart/assert": "^2.0.0"
 	},
 	"config": {
 		"platform": {
