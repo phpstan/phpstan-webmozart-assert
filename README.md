@@ -26,6 +26,40 @@ function demo(?int $a) {
 }
 ```
 
+## Supported assertions
+
+This extension understands the following `Assert::*` methods and narrows types accordingly.
+
+All assertions also work with the `nullOr*()`, `all*()`, and `allNullOr*()` prefixes (e.g. `Assert::nullOrString()`, `Assert::allInteger()`, `Assert::allNullOrNotEmpty()`).
+
+### Type checks
+
+`integer`, `positiveInteger`, `natural`, `float`, `numeric`, `integerish`, `boolean`, `scalar`, `string`, `stringNotEmpty`, `object`, `resource`, `isCallable`, `isArray`, `isIterable`, `isTraversable`, `isList`, `isNonEmptyList`, `isMap`, `isNonEmptyMap`, `isCountable`, `isArrayAccessible`
+
+### Instance and class checks
+
+`isInstanceOf`, `isInstanceOfAny`, `notInstanceOf`, `isAOf`, `isAnyOf`, `isNotA`, `subclassOf`, `implementsInterface`, `classExists`, `interfaceExists`
+
+### Comparison
+
+`same`, `notSame`, `eq`, `notEq`, `greaterThan`, `greaterThanEq`, `lessThan`, `lessThanEq`, `range`, `true`, `false`, `null`, `notNull`, `notFalse`, `inArray`, `oneOf`
+
+### String assertions
+
+`contains`, `startsWith`, `endsWith`, `startsWithLetter`, `unicodeLetters`, `alpha`, `digits`, `alnum`, `lower`, `upper`, `uuid`, `ip`, `ipv4`, `ipv6`, `email`, `notWhitespaceOnly`, `length`, `minLength`, `maxLength`, `lengthBetween`
+
+### Count assertions
+
+`count`, `minCount`, `maxCount`, `countBetween`
+
+### Object and array
+
+`keyExists`, `keyNotExists`, `validArrayKey`, `methodExists`, `propertyExists`
+
+### Negative `all*` assertions
+
+`allNotNull`, `allNotInstanceOf`, `allNotSame`
+
 ## Installation
 
 To use this extension, require it in [Composer](https://getcomposer.org/):
