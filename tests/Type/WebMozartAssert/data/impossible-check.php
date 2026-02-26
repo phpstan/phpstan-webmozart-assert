@@ -102,10 +102,10 @@ class Foo
 	public function implementsInterface($a, string $b, $c): void
 	{
 		Assert::implementsInterface($a, Bar::class);
-		Assert::implementsInterface($a, Bar::class);
+		Assert::implementsInterface($a, Bar::class); // Could be reported as always true
 
 		Assert::implementsInterface($b, Bar::class);
-		Assert::implementsInterface($b, Bar::class);
+		Assert::implementsInterface($b, Bar::class); // Could be reported as always true
 
 		Assert::implementsInterface($c, Unknown::class);
 		Assert::implementsInterface($c, self::class);
@@ -125,6 +125,13 @@ class Foo
 		Assert::startsWith("value", $a);
 		Assert::startsWith("value", $a);
 		Assert::startsWith("value", "bix");
+	}
+
+	/** @param class-string<Bar> $a */
+	public function implementsInterface2(string $a): void
+	{
+		Assert::implementsInterface($a, Bar::class);
+		Assert::implementsInterface(Bar::class, Bar::class);
 	}
 
 }
