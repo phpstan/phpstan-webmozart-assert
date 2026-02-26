@@ -127,6 +127,13 @@ class Foo
 		Assert::startsWith("value", "bix");
 	}
 
+	/** @param class-string<Bar> $a */
+	public function implementsInterface2(string $a): void
+	{
+		Assert::implementsInterface($a, Bar::class);
+		Assert::implementsInterface(Bar::class, Bar::class);
+	}
+
 }
 
 interface Bar {};

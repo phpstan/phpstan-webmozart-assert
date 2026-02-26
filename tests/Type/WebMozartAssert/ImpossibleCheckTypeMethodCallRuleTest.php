@@ -116,6 +116,11 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::startsWith() with \'value\' and string will always evaluate to true.',
 				126,
 			],
+			[
+				'Call to static method Webmozart\Assert\Assert::implementsInterface() with \'WebmozartAssertImpossibleCheck\\\\Bar\' and \'WebmozartAssertImpossibleCheck\\\\Bar\' will always evaluate to false.',
+				134,
+				$tipText,
+			],
 		]);
 	}
 
