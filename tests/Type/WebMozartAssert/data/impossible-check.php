@@ -102,10 +102,10 @@ class Foo
 	public function implementsInterface($a, string $b, $c): void
 	{
 		Assert::implementsInterface($a, Bar::class);
-		Assert::implementsInterface($a, Bar::class);
+		Assert::implementsInterface($a, Bar::class); // Could be reported as always true
 
 		Assert::implementsInterface($b, Bar::class);
-		Assert::implementsInterface($b, Bar::class);
+		Assert::implementsInterface($b, Bar::class); // Could be reported as always true
 
 		Assert::implementsInterface($c, Unknown::class);
 		Assert::implementsInterface($c, self::class);

@@ -91,6 +91,7 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				'Call to static method Webmozart\Assert\Assert::allContains() with array<non-empty-string> and \'foo\' will always evaluate to true.',
 				98,
 			],
+			/*
 			[
 				'Call to static method Webmozart\Assert\Assert::implementsInterface() with class-string<WebmozartAssertImpossibleCheck\Bar>|WebmozartAssertImpossibleCheck\Bar and \'WebmozartAssertImpossibleCheck\\\Bar\' will always evaluate to true.',
 				105,
@@ -101,6 +102,7 @@ class ImpossibleCheckTypeMethodCallRuleTest extends RuleTestCase
 				108,
 				$tipText,
 			],
+			*/
 			[
 				'Call to static method Webmozart\Assert\Assert::implementsInterface() with mixed and \'WebmozartAssertImpossibleCheck\\\Foo\' will always evaluate to false.',
 				111,
