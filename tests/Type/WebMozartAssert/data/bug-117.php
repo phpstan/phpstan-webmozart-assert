@@ -18,8 +18,10 @@ class HelloWorld
 	 *     theme: array{
 	 *         backgroundColor: string|null,
 	 *         textColor: string|null,
-	 *         headerImage: array{id: int}|null,
+	 *         headerImage: array{id: int, ...<mixed>}|null,
+	 *         ...<mixed>,
 	 *     },
+	 *     ...<mixed>,
 	 * }
 	 */
 	public function getData(int $accountId, array $requestData): array
