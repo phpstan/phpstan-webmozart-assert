@@ -6,7 +6,8 @@ namespace WebmozartAssertBug68;
 
 use Webmozart\Assert\Assert;
 
-$encryptedValue = "some value";
+/** @var string $encryptedValue */
+$encryptedValue = doFoo();
 $valueParts = explode(':', $encryptedValue);
 
 Assert::count(
