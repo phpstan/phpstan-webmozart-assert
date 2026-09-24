@@ -16,7 +16,7 @@
 		"phpstan/phpstan-deprecation-rules": "^2.0",
 		"phpstan/phpstan-phpunit": "^2.0.10",
 		"phpstan/phpstan-strict-rules": "^2.0",
-		"phpunit/phpunit": "^9.6",
+		"phpunit/phpunit": "^13.0",
 		"shipmonk/name-collision-detector": "^2.1",
 		"webmozart/assert": "^1.11.0 || ^2.0"
 	},
