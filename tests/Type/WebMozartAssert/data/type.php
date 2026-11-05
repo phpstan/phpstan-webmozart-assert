@@ -42,16 +42,16 @@ class TypeTest
 	public function integerish($a, $b, int $c, float $d, string $e, string $f): void
 	{
 		Assert::integerish($a);
-		assertType('float|int|numeric-string', $a);
+		assertType('float<-9.223372036854776E+18, 9.223372036854776E+18>|int|numeric-string', $a);
 
 		Assert::nullOrIntegerish($b);
-		assertType('float|int|numeric-string|null', $b);
+		assertType('float<-9.223372036854776E+18, 9.223372036854776E+18>|int|numeric-string|null', $b);
 
 		Assert::integerish($c);
 		assertType('int', $c);
 
 		Assert::integerish($d);
-		assertType('float', $d);
+		assertType('float<-9.223372036854776E+18, 9.223372036854776E+18>', $d);
 
 		Assert::integerish($e);
 		assertType('numeric-string', $e);
