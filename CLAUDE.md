@@ -80,3 +80,4 @@ GitHub Actions workflow (`.github/workflows/build.yml`) runs on the `2.0.x` bran
 - **Coding Standard**: PHP 8.2 with `phpstan/build-cs`
 - **Tests**: PHP 7.4–8.4 matrix with lowest/highest dependencies
 - **Static Analysis (PHPStan)**: PHP 7.4–8.4 matrix with lowest/highest dependencies
+- **Mutation Testing**: Infection (via `phpstan/build-infection`) on PHP 8.3–8.5, pull requests only, requires 100% MSI on changed lines
