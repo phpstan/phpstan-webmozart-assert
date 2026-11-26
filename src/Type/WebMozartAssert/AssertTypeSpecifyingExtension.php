@@ -766,6 +766,14 @@ class AssertTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtensi
 				$type = $typeModifier($type);
 			}
 
+			// in_array() checks values, not types. An element type that is already
+			// inside the haystack value type is not proof that every element is present.
+			if (self::trimName($methodName) === 'inArray'
+				&& $type->isSuperTypeOf($scope->getType($node->getArgs()[0]->value)->getIterableValueType())->yes()
+			) {
+				return new SpecifiedTypes();
+			}
+
 			$specifiedTypes = $this->allArrayOrIterable(
 				$scope,
 				$node->getArgs()[0]->value,
