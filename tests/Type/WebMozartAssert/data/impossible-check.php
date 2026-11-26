@@ -147,3 +147,17 @@ class Baz
 	}
 
 }
+
+class InArrayMembership
+{
+
+	/**
+	 * @param array<string> $enabledNames
+	 * @param array<string> $supportedNames
+	 */
+	public function allInArray(array $enabledNames, array $supportedNames): void
+	{
+		Assert::allInArray($enabledNames, $supportedNames);
+	}
+
+}
